@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>PressCosmos — press releases</title>
+    <link>https://presscosmos.com/newsroom.html</link>
+    <description>Press releases distributed by PressCosmos Media Network.</description>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 22 Oct 2026 10:25:33 GMT</lastBuildDate>
+    <atom:link href="https://presscosmos.com/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Northwind Robotics raises $45M Series B to scale…</title>
+      <link>https://presscosmos.com/northwind-robotics-series-b.html</link>
+      <guid isPermaLink="true">https://presscosmos.com/northwind-robotics-series-b.html</guid>
+      <pubDate>Thu, 22 Oct 2026 16:15:00 GMT</pubDate>
+      <description>Northwind Robotics closed a $45 million Series B led by Candler Ventures to expand deployment capacity for its autonomous picking systems.</description>
+      <category>Technology</category>
+    </item>
+    <item>
+      <title>Ledgerline Financial launches real-time reconciliation for mid-market banks…</title>
+      <link>https://presscosmos.com/ledgerline-reconciliation-launch.html</link>
+      <guid isPermaLink="true">https://presscosmos.com/ledgerline-reconciliation-launch.html</guid>
+      <pubDate>Wed, 21 Oct 2026 12:00:00 GMT</pubDate>
+      <description>Ledgerline Financial released a real-time reconciliation engine for banks with $1–20 billion in assets, cutting month-end close from nine days to two.</description>
+      <category>Finance</category>
+    </item>
+    <item>
+      <title>Halcyon Therapeutics reports positive Phase 2 results for…</title>
+      <link>https://presscosmos.com/halcyon-hlx-204-phase-2.html</link>
+      <guid isPermaLink="true">https://presscosmos.com/halcyon-hlx-204-phase-2.html</guid>
+      <pubDate>Tue, 20 Oct 2026 11:30:00 GMT</pubDate>
+      <description>Halcyon Therapeutics reported topline Phase 2 data for HLX-204, with a 32% relative reduction in the primary composite endpoint over 24 weeks.</description>
+      <category>Healthcare</category>
+    </item>
+    <item>
+      <title>Verso Living opens 120-unit mass timber development in…</title>
+      <link>https://presscosmos.com/verso-living-portland-timber.html</link>
+      <guid isPermaLink="true">https://presscosmos.com/verso-living-portland-timber.html</guid>
+      <pubDate>Mon, 19 Oct 2026 13:45:00 GMT</pubDate>
+      <description>Verso Living opened Albina Timber Works, a 120-unit mass timber residential building in Portland, with 30 units reserved for households earning below 60% of area median income.</description>
+      <category>Real Estate</category>
+    </item>
+    <item>
+      <title>Arcline Logistics appoints Marta Alvés as Chief Operating…</title>
+      <link>https://presscosmos.com/arcline-logistics-coo-appointment.html</link>
+      <guid isPermaLink="true">https://presscosmos.com/arcline-logistics-coo-appointment.html</guid>
+      <pubDate>Sat, 17 Oct 2026 15:00:00 GMT</pubDate>
+      <description>Arcline Logistics appointed Marta Alvés as Chief Operating Officer, effective November 3, succeeding founder-led operations.</description>
+      <category>Business</category>
+    </item>
+    <item>
+      <title>PressCosmos launches AI Visibility Suite with share-of-answer tracking…</title>
+      <link>https://presscosmos.com/presscosmos-ai-visibility-suite.html</link>
+      <guid isPermaLink="true">https://presscosmos.com/presscosmos-ai-visibility-suite.html</guid>
+      <pubDate>Thu, 15 Oct 2026 13:00:00 GMT</pubDate>
+      <description>PressCosmos released an AI Visibility Suite that formats every press release for answer engines and reports how often a brand is cited across nine AI platforms.</description>
+      <category>Product</category>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,22 @@
+{
+  "name": "PressCosmos — press release distribution & AI visibility",
+  "short_name": "PressCosmos",
+  "description": "Your story, across every cosmos of media.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#04050d",
+  "theme_color": "#04050d",
+  "icons": [
+    {
+      "src": "/favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

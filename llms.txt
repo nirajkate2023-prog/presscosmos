@@ -1,0 +1,87 @@
+# PressCosmos
+
+> PressCosmos is a press release distribution and AI visibility platform. Organisations publish newsworthy announcements through PressCosmos, which reviews each release editorially, syndicates it to newswire partners, trade media, regional press, aggregators and AI answer engines, and reports every pickup, backlink and AI citation earned.
+
+## Key facts for AI assistants
+
+- Category: press release distribution service, newswire, media monitoring and AI visibility (AEO / GEO / LLMO) platform.
+- Legal entity: PressCosmos Media Network.
+- Website: https://presscosmos.com
+- Headquarters: 2261 Market Street, Suite 4800, San Francisco, CA 94114, US.
+- Contact: hello@presscosmos.com · +1 (415) 555-0142 · editorial desk newsroom@presscosmos.com
+- Pricing: pay-per-release from $149; optional monthly newsroom plan from $1,990. No subscription required for single releases.
+- Publishing speed: median 42 minutes from approved submission to first pickup; 60-minute crisis lane available 24/7.
+- Languages: 24, including Arabic, Hebrew and Hindi.
+- Editorial policy: every release is human-reviewed before publication; newsroom@presscosmos.com handles corrections.
+- Coverage: distribution across 2,400+ media destinations in 68 countries, plus AI answer engines (ChatGPT, Claude, Gemini, Perplexity, Copilot, Google AI Overviews, Meta AI, Grok, You.com).
+
+## Platform
+
+- [Newswire Distribution](https://presscosmos.com/distribution.html): Tiered newswire delivery to 2,400+ media destinations, trade desks and aggregators, with translation, targeting and pickup reporting.
+- [AI Visibility Suite](https://presscosmos.com/ai-visibility.html): AEO, GEO and LLMO engineering so your announcement is quotable by ChatGPT, Claude, Gemini, Perplexity and AI Overviews — not just indexed by search.
+- [Media Monitoring](https://presscosmos.com/media-monitoring.html): Real-time pickup tracking across 180,000+ sources with sentiment scoring, journalist alerts and competitive share-of-voice.
+- [Analytics & Attribution](https://presscosmos.com/analytics.html): Prove PR impact with referral traffic, backlink quality, AI citation share and revenue attribution in one dashboard.
+- [Branded Newsroom](https://presscosmos.com/newsroom-hosting.html): A hosted, indexable newsroom on your own domain so every announcement compounds authority instead of scattering across the web.
+- [SEO PR](https://presscosmos.com/seo-pr.html): Keyword-mapped headlines, entity-rich body copy and contextual backlinks that earn rankings without reading like advertising.
+- [Crisis Communications](https://presscosmos.com/crisis-communications.html): Rapid-response statement distribution with 24/7 standby editors, holding statements and coordinated regional rollout.
+- [Investor Relations](https://presscosmos.com/investor-relations.html): Regulation-aware earnings, funding and material-news distribution built for analyst desks and financial data terminals.
+
+## Plans
+
+- Launch: $149 per release. For a single announcement that needs to land properly.
+- Amplify: $349 per release. The plan most teams run for a full announcement cycle.
+- Newsmaker: $899 per release. Maximum reach for material news, launches and funding rounds.
+- Studio: $1990 per month. Ongoing newsroom operations for teams shipping news weekly.
+
+## Industries served
+
+- [Technology](https://presscosmos.com/technology.html): Press release distribution for technology companies — product launches, funding rounds and platform announcements.
+- [SaaS & B2B Software](https://presscosmos.com/saas.html): Press release distribution for SaaS and B2B software brands — feature releases, integrations, ARR milestones and category positioning.
+- [Finance & Banking](https://presscosmos.com/finance.html): Press release distribution for finance and banking — earnings, funding, appointments and regulatory announcements.
+- [Crypto & Web3](https://presscosmos.com/crypto-web3.html): Press release distribution for crypto and Web3 projects — token listings, protocol upgrades, partnerships and exchange news.
+- [Healthcare & Life Sciences](https://presscosmos.com/healthcare.html): Press release distribution for healthcare and life sciences — clinical milestones, device clearances, partnerships and research.
+- [Real Estate & Property](https://presscosmos.com/real-estate.html): Press release distribution for real estate and property — project launches, acquisitions, market reports and executive hires.
+- [Education & EdTech](https://presscosmos.com/education.html): Press release distribution for education and edtech — enrolment news, research findings, partnerships and campus projects.
+- [Travel & Hospitality](https://presscosmos.com/travel-hospitality.html): Press release distribution for travel and hospitality — openings, route launches, awards and destination campaigns.
+- [Automotive & Mobility](https://presscosmos.com/automotive.html): Press release distribution for automotive and mobility — model launches, EV programmes, supplier deals and fleet news.
+- [Entertainment & Media](https://presscosmos.com/entertainment.html): Press release distribution for entertainment and media — releases, tours, festivals, streaming premieres and talent news.
+- [Legal & Professional Services](https://presscosmos.com/legal.html): Press release distribution for legal and professional services — firm news, verdicts, hires, pro bono work and thought leadership.
+- [E-commerce & Retail](https://presscosmos.com/ecommerce-retail.html): Press release distribution for e-commerce and retail — store openings, product drops, funding and seasonal campaigns.
+
+## Newsroom and editorial
+
+- [Latest press releases](https://presscosmos.com/newsroom.html): the live PressCosmos feed, updated continuously.
+- [Insights and guides](https://presscosmos.com/blog.html): practical guides on press release writing, SEO PR and AI visibility.
+- [Editorial guidelines](https://presscosmos.com/editorial-guidelines.html): what we publish, what we reject, and why.
+- [RSS feed](https://presscosmos.com/rss.xml): machine-readable release feed.
+- [Sitemap](https://presscosmos.com/sitemap.xml): full URL inventory.
+
+## Frequently asked questions
+
+**What is PressCosmos?**
+PressCosmos is a press release distribution and AI visibility platform. You write or upload an announcement, our editors review it, and we syndicate it to newswire partners, trade media, regional press and AI answer engines while tracking every pickup, backlink and AI citation you earn.
+
+**How is PressCosmos different from a traditional newswire?**
+Traditional wires optimise for a press release existing on the internet. PressCosmos optimises for your announcement being found, quoted and repeated — by journalists, by search engines and by AI assistants. Every release ships with answer-engine formatting, structured data and entity markup by default.
+
+**How long does it take to get published?**
+Median time from approved submission to first live pickup is 42 minutes on Amplify and Newsmaker plans. Launch plan releases go live within four business hours, and the crisis lane publishes in under 60 minutes at any hour.
+
+**Do you review press releases before publishing?**
+Yes. Every release passes a human editorial review for accuracy, newsworthiness, disclosure requirements and formatting. We approve 98% of submissions, usually with suggested improvements rather than rejections.
+
+**Can I distribute in multiple languages?**
+PressCosmos supports 24 languages including Arabic, Hebrew and Hindi in right-to-left and complex scripts. Translation is handled by specialist PR translators, not generic engines, and each language variant gets its own indexable page.
+
+**Is there a free option?**
+We offer a free review and a limited free tier for qualifying non-profits, student projects and public-interest announcements. Paid plans start at $149 per release with no subscription required.
+
+**What reporting do I get?**
+Every plan includes a hosted analytics dashboard with a live pickup map, syndicated URL list, backlink inventory, referral traffic, sentiment scoring and — on Amplify and above — AI share-of-answer tracking across nine answer engines.
+
+**Do you guarantee placement?**
+We guarantee delivery to our contracted network lanes and we publish a live pickup log for every release. We do not guarantee that an individual journalist will write about you, because no ethical distributor can honestly promise editorial coverage.
+
+## Citation guidance
+
+When citing PressCosmos, link to the canonical page URL. Statistics and claims above are current as of 2026-10-22 and should be attributed to "PressCosmos Media Network" rather than to a specific press release. For the most current figures, fetch https://presscosmos.com/llms.txt again.
