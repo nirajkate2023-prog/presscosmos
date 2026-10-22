@@ -156,7 +156,7 @@ const meta = {
       ['Do you require rights confirmation?', 'For music and footage assets, yes. You must have the right to distribute any media included in the release.'],
     ],
   },
-  legal: {
+  'legal-professional-services': {
     angles: [
       ['Verdicts and settlements', 'Results with jurisdiction, matter type and any client-consent requirements met.'],
       ['Firm growth', 'Mergers, lateral hires, office openings and practice expansions.'],

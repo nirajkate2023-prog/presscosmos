@@ -265,7 +265,7 @@ export const industries = [
     keywords: ['premieres', 'touring', 'streaming', 'festivals'],
   },
   {
-    slug: 'legal',
+    slug: 'legal-professional-services',
     name: 'Legal & Professional Services',
     h1: 'Press release distribution for legal and professional services',
     intent: 'firm news, verdicts, hires, pro bono work and thought leadership',

@@ -45,7 +45,7 @@
 - [Travel & Hospitality](https://presscosmos.com/travel-hospitality.html): Press release distribution for travel and hospitality — openings, route launches, awards and destination campaigns.
 - [Automotive & Mobility](https://presscosmos.com/automotive.html): Press release distribution for automotive and mobility — model launches, EV programmes, supplier deals and fleet news.
 - [Entertainment & Media](https://presscosmos.com/entertainment.html): Press release distribution for entertainment and media — releases, tours, festivals, streaming premieres and talent news.
-- [Legal & Professional Services](https://presscosmos.com/legal.html): Press release distribution for legal and professional services — firm news, verdicts, hires, pro bono work and thought leadership.
+- [Legal & Professional Services](https://presscosmos.com/legal-professional-services.html): Press release distribution for legal and professional services — firm news, verdicts, hires, pro bono work and thought leadership.
 - [E-commerce & Retail](https://presscosmos.com/ecommerce-retail.html): Press release distribution for e-commerce and retail — store openings, product drops, funding and seasonal campaigns.
 
 ## Newsroom and editorial
