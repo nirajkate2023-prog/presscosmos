@@ -74,7 +74,7 @@ function New-SocialCard($path) {
   # supporting line
   $subFont = New-FontObj 28 'Regular' 'Segoe UI'
   $subBrush = New-Object System.Drawing.SolidBrush([System.Drawing.ColorTranslator]::FromHtml('#A2A8C8'))
-  $g.DrawString("Press release distribution · AI visibility · Media monitoring", $subFont, $subBrush, 66, 440)
+  $g.DrawString("Press release distribution | AI visibility | Media monitoring", $subFont, $subBrush, 66, 440)
 
   # stats row
   $statFont = New-FontObj 34 'Bold' 'Segoe UI'

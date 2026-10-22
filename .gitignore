@@ -9,3 +9,7 @@ desktop.ini
 # Logs and local scratch
 *.log
 .tmp/
+
+# Deployment artefacts — regenerate with tools/make-deploy.ps1
+build/
+*.zip

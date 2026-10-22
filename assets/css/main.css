@@ -128,7 +128,9 @@ body {
   font-synthesis-weight: none;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* clip (not hidden) so the sticky header keeps working; hidden is the fallback */
   overflow-x: hidden;
+  overflow-x: clip;
   min-height: 100svh;
 }
 
@@ -1129,4 +1131,176 @@ table.compare .col-highlight { background: rgba(124, 92, 255, .08); }
 @media print {
   body::before, body::after, .site-header, .site-footer, .consent, .to-top { display: none !important; }
   body { background: #fff; color: #000; }
+}
+
+/* ==========================================================================
+   20. Responsive & alignment layer
+   Phone (≤640), large phone (≤700), tablet (641–1080), desktop (>1080).
+   Appended last so these rules win ties against the component defaults above.
+   ========================================================================== */
+
+/* Never let a long word, email address or URL break the layout. */
+body { overflow-wrap: break-word; }
+.prose, .card, .release-row, .faq-a-inner, .story, .plan, .callout { overflow-wrap: anywhere; }
+input, select, textarea { min-width: 0; }
+
+/* Anchor targets clear the sticky header more reliably than scroll-padding alone. */
+[id] { scroll-margin-top: calc(var(--nav-h) + 1rem); }
+
+/* Native scrolling feel on touch devices. */
+.table-scroll, .nav-list, .dropdown { -webkit-overflow-scrolling: touch; }
+
+/* --- Touch devices: comfortable tap targets (44px minimum) ---------------- */
+@media (pointer: coarse) {
+  .tag { padding: .5rem .9rem; font-size: .74rem; }
+  .nav-link { min-height: 44px; }
+  .dropdown a { padding: .7rem .8rem; }
+  .footer-col a { padding-block: .32rem; }
+  .theme-toggle, .nav-toggle { width: 44px; height: 44px; }
+  .social-list a { width: 44px; height: 44px; }
+  .faq-q { padding-block: 1.4rem; }
+  .link-arrow { padding-block: .35rem; }
+}
+
+/* --- Wide tables: scroll shadow + pinned first column -------------------- */
+.table-scroll {
+  position: relative;
+  max-width: 100%;
+  background-image:
+    linear-gradient(to right, var(--bg-elevated) 30%, rgba(0, 0, 0, 0)),
+    linear-gradient(to left, var(--bg-elevated) 30%, rgba(0, 0, 0, 0)),
+    radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, .3), rgba(0, 0, 0, 0)),
+    radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, .3), rgba(0, 0, 0, 0));
+  background-position: 0 0, 100% 0, 0 0, 100% 0;
+  background-repeat: no-repeat;
+  background-size: 44px 100%, 44px 100%, 16px 100%, 16px 100%;
+  background-attachment: local, local, scroll, scroll;
+}
+table.compare th[scope='row'] {
+  background: var(--bg);
+  box-shadow: inset -1px 0 0 var(--border);
+}
+@media (max-width: 1080px) {
+  table.compare th[scope='row'] { position: sticky; left: 0; z-index: 2; }
+  table.compare thead th:first-child { position: sticky; left: 0; z-index: 3; background: var(--bg); }
+}
+
+/* --- Alignment: rows, cards, testimonials --------------------------------- */
+.release-row { align-items: center; }
+@media (max-width: 720px) { .release-row { align-items: start; } }
+
+.plan ul { flex: 1 1 auto; }
+.plan .btn { margin-top: 1.6rem; }
+.plan > p:first-of-type { min-height: 2.9em; }
+
+.quote-card { display: flex; flex-direction: column; }
+.quote-text { margin-top: 1rem; font-family: var(--font-display); font-size: var(--step-1); line-height: 1.5; }
+.quote-foot { margin-top: auto; padding-top: 1.25rem; display: flex; gap: .7rem; align-items: center; }
+
+/* Mobile CTA inside the slide-down panel (shown only when the panel is open). */
+.nav-cta-mobile { display: none; }
+@media (max-width: 1080px) {
+  .nav-list.is-open .nav-cta-mobile { display: block; }
+  .nav-list.is-open .nav-cta-mobile .btn { width: 100%; }
+}
+
+/* --- Phone: tighter rhythm, stacked actions, no crowd in the header ------- */
+@media (max-width: 700px) {
+  :root { --nav-h: 62px; }
+  .orbit-visual { max-width: 340px; }
+  .orbit-visual .chip { font-size: .62rem; padding: .4rem .65rem; }
+  .chip-a { left: 0; }
+  .chip-b { right: 0; }
+  .chip-c { display: none; }
+  .crumbs { font-size: .78rem; }
+  .consent { flex-direction: column; align-items: flex-start; }
+  .consent .cluster { width: 100%; }
+  .consent .cluster .btn { flex: 1 1 auto; }
+  /* Hide the floating button while the cookie bar is on screen (avoids overlap). */
+  body:has(.consent.is-visible) .to-top { opacity: 0 !important; pointer-events: none !important; }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --gutter: 1.05rem;
+    --section-y: clamp(2.5rem, 9vw, 3.5rem);
+    --r-lg: 18px;
+    --r-xl: 22px;
+  }
+  .card { padding: 1.15rem; }
+  .card-icon { width: 42px; height: 42px; margin-bottom: .9rem; }
+  .hero { padding-block: 2.25rem 2rem; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .hero-actions .btn { width: 100%; }
+  .hero-proof { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem .75rem; margin-top: 1.9rem; }
+  .kpi { flex-direction: column; align-items: flex-start; gap: .1rem; }
+  .page-hero { padding-block: 1.75rem 1rem; }
+  .page-hero-side { gap: 1.5rem; }
+  .cta-band { padding: 2rem 1.15rem; }
+  .faq-a-inner { padding-right: 1rem; }
+  .stepper { font-size: .78rem; gap: .3rem; }
+  .footer-bottom { flex-direction: column; align-items: flex-start; gap: .6rem; }
+  .bento .b-tall { grid-row: auto; }
+  .marquee-track { animation-duration: 30s; }
+  .marquee-item { font-size: .72rem; }
+  /* 16px inputs stop iOS Safari zooming the page on focus. */
+  .input, .select, .textarea { font-size: 16px; }
+  .checkbox { font-size: var(--step--1); }
+  .stat-value { font-size: var(--step-2); }
+  .themed-block, .panel { border-radius: var(--r-md); }
+}
+
+@media (max-width: 420px) {
+  .orbit-visual .chip-b { display: none; }
+  .stat-row { gap: 1.1rem .9rem; }
+}
+
+/* Once panels are stacked full-width, sideways reveals are meaningless and push the
+   page wider than the viewport. Reveal vertically instead. */
+@media (max-width: 900px) {
+  [data-reveal='left'], [data-reveal='right'] { transform: translateY(22px); }
+}
+
+/* Comparison tables: tighter cells so there is less to scroll, on top of the
+   pinned first column and the scroll shadow. */
+@media (max-width: 760px) {
+  table.compare { min-width: 600px; }
+  table.compare th, table.compare td { padding: .7rem .8rem; }
+  .table-scroll { border-radius: var(--r-md); }
+}
+
+/* Very narrow phones (320–380px): the wordmark plus two icon buttons no longer
+   fit on one line, so tighten the header instead of letting it widen the page. */
+@media (max-width: 380px) {
+  .nav { gap: .5rem; }
+  .brand { font-size: .97rem; gap: .45rem; }
+  .brand-mark { width: 26px; height: 26px; }
+  .nav-actions { gap: .35rem; }
+  .theme-toggle, .nav-toggle { width: 40px; height: 40px; }
+  .display-xl, .hero h1 { font-size: clamp(1.9rem, 8.5vw, 2.4rem); }
+}
+
+/* --- Tablet: keep the two-column rhythm where it still reads well -------- */
+@media (min-width: 641px) and (max-width: 1080px) {
+  .hero-grid { gap: 2rem; }
+  .section-head { margin-bottom: 2rem; }
+  .g-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .footer-top { gap: 2rem; }
+}
+
+/* --- Long-form article: TOC becomes a card above nothing, so box it ------- */
+@media (max-width: 940px) {
+  .layout-article { gap: 2rem; }
+  .toc {
+    position: static;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--surface);
+  }
+}
+
+/* --- Very short viewports (landscape phones): stop the panel overflowing -- */
+@media (max-height: 520px) and (max-width: 1080px) {
+  .nav-list.is-open { max-height: calc(100svh - var(--nav-h)); padding-bottom: 1.5rem; }
 }

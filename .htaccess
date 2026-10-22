@@ -1,0 +1,205 @@
+# ============================================================================
+# PressCosmos — Apache / LiteSpeed configuration for Hostinger
+# Place this file in public_html (the site root), next to index.html.
+# Tested against LiteSpeed (Hostinger's default web server), which implements
+# the mod_rewrite, mod_headers, mod_deflate, mod_expires and mod_mime modules
+# used below. Every block is wrapped in <IfModule> so an unavailable module
+# degrades gracefully instead of returning a 500 error.
+# ============================================================================
+
+# ---------------------------------------------------------------------------
+# 1. Defaults
+# ---------------------------------------------------------------------------
+DirectoryIndex index.html
+AddDefaultCharset UTF-8
+
+# No directory listings: /assets/ should not be browsable.
+Options -Indexes
+
+# Follow symlinks if the host requires it for rewrites.
+Options +FollowSymLinks
+
+# ---------------------------------------------------------------------------
+# 2. Custom error page
+# ---------------------------------------------------------------------------
+ErrorDocument 404 /404.html
+
+# ---------------------------------------------------------------------------
+# 3. Force HTTPS and a single canonical hostname
+#
+#    The site's canonical tags point at https://presscosmos.com (no www), so
+#    the redirects below send www -> non-www and http -> https to keep one
+#    canonical hostname.
+#
+#    IMPORTANT: only enable the HTTPS redirect once your SSL certificate is
+#    active in hPanel. If the site returns an SSL error right after deploying,
+#    comment out lines 41-44 (the first RewriteCond/RewriteRule pair) and the
+#    site will serve over http until SSL is issued.
+# ---------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # http -> https
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+  # www -> non-www
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+  # -------------------------------------------------------------------------
+  # 4. Optional: extensionless URLs
+  #
+  #    With this enabled, /pricing serves pricing.html while /pricing.html
+  #    keeps working. Internal links in the HTML already use .html, so this is
+  #    purely a nicety — enable it if you prefer short URLs in marketing copy.
+  #    Uncomment the three lines below to turn it on.
+  # -------------------------------------------------------------------------
+  # RewriteCond %{REQUEST_FILENAME} !-d
+  # RewriteCond %{REQUEST_FILENAME}\.html -f
+  # RewriteRule ^(.+)$ $1.html [L]
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# 5. Security headers
+# ---------------------------------------------------------------------------
+<IfModule mod_headers.c>
+  # Prevent MIME-type sniffing
+  Header always set X-Content-Type-Options "nosniff"
+
+  # Disallow framing of the site
+  Header always set X-Frame-Options "SAMEORIGIN"
+
+  # Send only the origin on cross-site navigation
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Turn off browser features the site does not use
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()"
+
+  # HSTS — only applies once HTTPS is live. Remove if you ever need to serve http.
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+
+  # Content Security Policy.
+  #  - script-src needs 'unsafe-inline' for the one-line theme bootstrap in <head>
+  #  - Google Fonts supplies the stylesheet and the font binaries
+  #  - data: is needed for the inline SVG noise texture and the select caret
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self'"
+
+  # Remove the server signature from responses
+  Header unset X-Powered-By
+  Header unset Server
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# 6. Compression
+# ---------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript
+  AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+  AddOutputFilterByType DEFLATE application/json application/xml application/rss+xml
+  AddOutputFilterByType DEFLATE application/manifest+json
+  AddOutputFilterByType DEFLATE image/svg+xml
+  AddOutputFilterByType DEFLATE font/woff2
+
+  # Do not attempt to compress already-compressed images
+  SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png|webp|ico|zip|gz|woff2?)$ no-gzip dont-vary
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# 7. Caching
+#
+#    Asset filenames are not content-hashed, so CSS and JS use a moderate
+#    window. HTML is always revalidated so a deploy is visible immediately.
+# ---------------------------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault "access plus 1 hour"
+
+  # HTML must revalidate so updates appear straight after a deploy
+  ExpiresByType text/html "access plus 0 seconds"
+
+  # Text assets — moderate window because filenames are unversioned
+  ExpiresByType text/css "access plus 7 days"
+  ExpiresByType text/javascript "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+
+  # Media and icons
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType image/svg+xml "access plus 30 days"
+  ExpiresByType image/x-icon "access plus 30 days"
+
+  # Feeds and machine-readable files
+  ExpiresByType application/xml "access plus 1 hour"
+  ExpiresByType application/rss+xml "access plus 1 hour"
+  ExpiresByType text/plain "access plus 1 hour"
+  ExpiresByType application/manifest+json "access plus 1 day"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(css|js|png|jpe?g|webp|svg|ico|woff2?)$">
+    Header set Cache-Control "public, max-age=604800, stale-while-revalidate=86400"
+  </FilesMatch>
+  <FilesMatch "\.(html|xml|txt|json|webmanifest)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# 8. MIME types
+#    LiteSpeed generally knows these, but declaring them avoids surprises on
+#    the manifest, the feeds and the SVG favicon.
+# ---------------------------------------------------------------------------
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+  AddType application/json .json
+  AddType application/rss+xml .rss
+  AddType image/svg+xml .svg
+  AddType font/woff2 .woff2
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# 9. Protect source, tooling and repository metadata
+#
+#    Only the built site needs to be public. The build scripts, docs and git
+#    metadata are blocked whether you deploy via Git or by uploading the whole
+#    repository.
+# ---------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^\.git(/|$) - [F,L]
+  RewriteRule ^tools(/|$) - [F,L]
+  RewriteRule ^\.commandcode(/|$) - [F,L]
+  RewriteRule ^(README|DEPLOY|LICENSE)\.md$ - [F,L]
+  RewriteRule ^\.gitignore$ - [F,L]
+</IfModule>
+
+<FilesMatch "\.(mjs|ps1|md|sql|yml|yaml|lock|bak|config)$">
+  Require all denied
+</FilesMatch>
+
+# Apache 2.2 fallback for the rule above
+<FilesMatch "\.(mjs|ps1|md|sql|yml|yaml|lock|bak|config)$">
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# ---------------------------------------------------------------------------
+# 10. Protect dotfiles generally
+# ---------------------------------------------------------------------------
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+# ---------------------------------------------------------------------------
+# 11. Correct UTF-8 for the machine-readable files
+#     (llms.txt, robots.txt and the sitemap contain non-ASCII punctuation)
+# ---------------------------------------------------------------------------
+<FilesMatch "\.(txt|xml|html)$">
+  AddDefaultCharset UTF-8
+</FilesMatch>

@@ -1,7 +1,109 @@
 # Deploying PressCosmos
 
-The site is plain static HTML with no build step, so hosting is simple. GitHub Pages is
-already configured for this repository.
+The site is plain static HTML — no build step, no database, no Node.js, no PHP. That means it
+runs anywhere: Hostinger shared hosting, Cloudflare Pages, Netlify, GitHub Pages, or a plain
+Apache box.
+
+**Canonical production URL:** `https://presscosmos.com`
+**Staging preview:** `https://nirajkate2023-prog.github.io/presscosmos/`
+
+---
+
+## Hostinger (primary deployment)
+
+Everything needed is already in `main`. Two ways to get it live.
+
+### Option A — Git deployment (recommended)
+
+Hostinger pulls the repository and redeploys on every push to `main`.
+
+1. In hPanel go to **Advanced → GIT**.
+2. Create a repository:
+   - **Repository**: `https://github.com/nirajkate2023-prog/presscosmos.git`
+   - **Branch**: `main`
+   - **Install path**: `public_html`
+3. Click **Create**. Hostinger clones the repo into `public_html`.
+4. Leave the **build command** empty — there is nothing to compile. (There is no
+   `package.json` in this project by design; no dependency install is required.)
+
+The included `.htaccess` blocks web access to `/tools/`, `/README.md`, `/DEPLOY.md`, `/.git`
+and dotfiles, so pulling the whole repository is safe.
+
+To redeploy after a change: push to `main`, then hit **Redeploy** in hPanel.
+
+### Option B — Upload the packaged zip
+
+Build a clean package containing only the site files:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/make-deploy.ps1
+```
+
+That creates `build/hostinger/` and `presscosmos-hostinger.zip`, with an
+`UPLOAD-INSTRUCTIONS.txt` inside the package. Then in hPanel:
+
+1. **Files → File Manager**, open `public_html`.
+2. Delete Hostinger's placeholder files (`default.php`, `index.php`) so they do not shadow
+   `index.html`.
+3. Upload `presscosmos-hostinger.zip`, right-click → **Extract**, then delete the zip.
+4. Confirm `.htaccess` extracted — enable **Show hidden files** in File Manager to see it.
+
+Or upload the contents of `build/hostinger/` over SFTP. The result must be
+`public_html/index.html`, not `public_html/hostinger/index.html`.
+
+### After uploading
+
+1. **Enable SSL**: hPanel → **Security → SSL**, and wait until it shows as active.
+2. `.htaccess` forces `https://` and redirects `www` → non-`www` (matching the canonical tags
+   in the HTML). If the site shows an SSL error immediately after deploying, SSL is not active
+   yet — comment out the two redirect lines in **section 3** of `.htaccess` and the site will
+   serve over http until the certificate issues.
+3. Point the domain at Hostinger (see DNS below), then verify:
+
+```bash
+curl -I https://presscosmos.com/
+curl -s https://presscosmos.com/robots.txt
+curl -s https://presscosmos.com/llms.txt
+```
+
+4. Submit `https://presscosmos.com/sitemap.xml` in Google Search Console and Bing Webmaster
+   Tools.
+
+### What the `.htaccess` does
+
+| Section | Purpose |
+| --- | --- |
+| 1 | `index.html` as directory index, no directory listings, UTF-8 default |
+| 2 | Custom `404.html` |
+| 3 | Force HTTPS and one canonical hostname (`www` → non-`www`) |
+| 4 | Optional extensionless URLs (commented out) |
+| 5 | Security headers: `nosniff`, frame options, referrer policy, permissions policy, HSTS, CSP |
+| 6 | Compression for HTML, CSS, JS, JSON, XML, SVG, fonts |
+| 7 | Caching: HTML revalidates on every deploy, assets cached 7 days |
+| 8 | MIME types for `.webmanifest`, `.svg`, `.woff2`, feeds |
+| 9–10 | Blocks `/tools/`, `/.git`, `*.mjs`, `*.ps1`, `*.md` and dotfiles from the web |
+| 11 | UTF-8 for HTML, text and XML |
+
+Every block is wrapped in `<IfModule>`, so a module Hostinger does not load cannot cause a
+500 error.
+
+### DNS
+
+Hostinger gives you nameservers when you add the domain. Either:
+
+- **Use Hostinger's nameservers** — set the pair shown in your hPanel at your registrar and
+  wait for propagation, or
+- **Keep DNS elsewhere** — point the apex `A` record at your Hostinger shared IP (shown under
+  **Hosting plan → Server details**), and add a `CNAME` for `www` pointing at the same host.
+
+Once `presscosmos.com` resolves to Hostinger you can leave the GitHub Pages copy running as a
+staging preview: Pages ignores `.htaccess`, so both hosts serve the same repository.
+
+---
+
+## GitHub Pages (staging preview)
+
+Already enabled, serving from `main`.
 
 ## Current setup
 
@@ -15,17 +117,21 @@ already configured for this repository.
 Every push to `main` redeploys automatically. There is no CI workflow and nothing to
 configure.
 
-## Pointing presscosmos.com at the site
+## If you host on GitHub Pages instead of Hostinger
 
-The custom domain is deliberately **not** activated yet. GitHub redirects the `github.io`
-URL to the custom domain as soon as one is set, so enabling it before DNS is live would
-break the preview link.
+> **Stop and read.** The DNS records in this section are **GitHub's IP addresses**. Do not add
+> them if you are deploying to Hostinger — pointing your DNS at GitHub would send traffic to
+> the Pages copy (which cannot read `.htaccess`) and permanently redirect your
+> `github.io` URL to your domain. Use this section only if you decide to make GitHub Pages the
+> production host.
 
-When you are ready, do these two things in this order.
+The custom domain is deliberately **not** activated. GitHub redirects the `github.io` URL to
+the custom domain as soon as one is set, so enabling it before DNS is live would break the
+staging link.
 
-### 1. Create the DNS records at your registrar
+### 1. Create the DNS records at your registrar (GitHub hosting only)
 
-For an apex domain (`presscosmos.com`), create four A records:
+For an apex domain (`presscosmos.com`), four A records:
 
 ```
 A    @    185.199.108.153
@@ -34,13 +140,13 @@ A    @    185.199.110.153
 A    @    185.199.111.153
 ```
 
-For the `www` subdomain, create one CNAME record:
+For `www`, one CNAME:
 
 ```
 CNAME    www    nirajkate2023-prog.github.io
 ```
 
-Optional but recommended — IPv6 support:
+Optional IPv6:
 
 ```
 AAAA    @    2606:50c0:8000::153
@@ -49,18 +155,18 @@ AAAA    @    2606:50c0:8002::153
 AAAA    @    2606:50c0:8003::153
 ```
 
-Then set the apex domain to redirect to `www`, or vice versa, so you have one canonical
-hostname. Pick one and be consistent — this matters for the canonical tags in the HTML.
+Pick one canonical hostname (`www` or bare) and redirect the other to it — the canonical tags
+in the HTML use the bare domain.
 
-### 2. Tell GitHub the domain and add the CNAME file
+### 2. Add the CNAME file and enable the domain
 
-Add a file named `CNAME` in the repository root containing exactly:
+Create a file named `CNAME` in the repository root containing exactly:
 
 ```
 presscosmos.com
 ```
 
-Then enable the domain in GitHub (Settings → Pages → Custom domain), or via the API:
+Then either enable it in **Settings → Pages → Custom domain**, or:
 
 ```bash
 gh api -X PUT repos/nirajkate2023-prog/presscosmos/pages \
@@ -71,33 +177,41 @@ Tick **Enforce HTTPS** once the certificate is issued. GitHub provisions a Let's
 certificate automatically; it usually takes a few minutes and can take up to 24 hours after
 DNS propagates.
 
-### 3. Update the canonical URL
+### 3. Canonical URL
 
-`tools/site.mjs` has a `baseUrl` value. It is already set to `https://presscosmos.com`,
-which is the correct production canonical, so no change is needed — but if you launch on a
-different domain, change it there and run `node tools/build.mjs`.
+`tools/site.mjs` holds `baseUrl`, already set to `https://presscosmos.com` — the correct
+production canonical either way. If you launch on a different domain, change it there and run
+`node tools/build.mjs`.
 
-## Verifying the deployment
+---
+
+## Verifying a deployment
 
 ```bash
-node tools/check-links.mjs                  # all internal links resolve locally
+node tools/check-links.mjs                  # every internal link and asset resolves
 curl -I https://presscosmos.com/            # 200 OK over HTTPS
 curl -s https://presscosmos.com/robots.txt  # crawler policy is live
 curl -s https://presscosmos.com/llms.txt    # AI guidance file is live
+node tools/preview.mjs                      # local preview at http://localhost:4321
 ```
 
 After the domain is live, submit `https://presscosmos.com/sitemap.xml` in Google Search
-Console and Bing Webmaster Tools. The `robots.txt` already explicitly allows the major AI
-crawlers, and `llms.txt` gives assistants a factual summary of the business.
+Console and Bing Webmaster Tools. `robots.txt` already explicitly allows the major AI crawlers,
+and `llms.txt` gives assistants a factual summary of the business.
 
-## Redeploying after changes
+## Redeploying after a change
 
-```bash
-node tools/build.mjs && node tools/check-links.mjs
-git add -A && git commit -m "Update site" && git push
+```powershell
+node tools/build.mjs
+node tools/check-links.mjs
+git add -A
+git commit -m "Update site"
+git push
 ```
 
-GitHub Pages picks up the change within about a minute.
+Then either let the Hostinger Git webhook pull the change, or re-run
+`tools/make-deploy.ps1` and re-upload the package. GitHub Pages picks up a push within about
+a minute.
 
 ## Alternative hosts
 

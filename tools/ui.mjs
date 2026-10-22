@@ -201,8 +201,8 @@ export const planCard = (plan) => `
   <h3>${plan.name}</h3>
   <p style="font-size:var(--step--1)">${plan.tagline}</p>
   <p class="plan-price"><span class="amount gradient-text">$${plan.price.toLocaleString('en-US')}</span><span class="unit">${plan.unit}</span></p>
-  <a class="btn ${plan.popular ? '' : 'btn-ghost'} btn-block" href="submit.html?plan=${plan.slug}">Start with ${plan.name}</a>
   <ul>${plan.features.map((f) => `<li>${icon('check')}<span>${f}</span></li>`).join('')}</ul>
+  <a class="btn ${plan.popular ? '' : 'btn-ghost'} btn-block" href="submit.html?plan=${plan.slug}">Start with ${plan.name}</a>
 </article>`;
 
 export const listCheck = (items) => `<ul class="list-check">${items.map((i) => `<li>${icon('check')}<span>${i}</span></li>`).join('')}</ul>`;
@@ -233,10 +233,10 @@ export const releaseRow = ({ href, title, summary, category, date, location, see
 </article>`;
 
 export const quote = (t) => `
-<figure class="card spotlight" data-reveal>
+<figure class="card spotlight quote-card" data-reveal>
   <div style="color:var(--violet);width:26px">${solid('quote')}</div>
-  <blockquote style="margin-top:1rem;font-family:var(--font-display);font-size:var(--step-1);line-height:1.5">${t.quote}</blockquote>
-  <figcaption style="margin-top:1.25rem;display:flex;gap:.7rem;align-items:center">
+  <blockquote class="quote-text">${t.quote}</blockquote>
+  <figcaption class="quote-foot">
     <span class="avatar" aria-hidden="true">${t.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}</span>
     <span><strong style="display:block;font-size:var(--step--1)">${t.name}</strong><span class="muted" style="font-size:var(--step--1)">${t.role}, ${t.company}</span></span>
   </figcaption>

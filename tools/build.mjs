@@ -211,6 +211,7 @@ const buildHeader = (page) => `
             ${item.children.map((c) => `<a href="${c.href}">${c.label}</a>`).join('')}
           </div>` : ''}
         </li>`).join('')}
+        <li class="nav-cta-mobile"><a class="btn" href="submit.html">Submit a release</a></li>
       </ul>
       <div class="nav-actions">
         <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch colour theme" aria-pressed="false">
