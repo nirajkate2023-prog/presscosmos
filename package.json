@@ -1,0 +1,40 @@
+{
+  "name": "presscosmos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PressCosmos - press release distribution and AI visibility platform. A static site with a zero-dependency build pipeline.",
+  "keywords": [
+    "press-release",
+    "newswire",
+    "pr-distribution",
+    "media-monitoring",
+    "ai-visibility",
+    "aeo",
+    "geo",
+    "llmo",
+    "seo",
+    "static-site"
+  ],
+  "homepage": "https://presscosmos.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nirajkate2023-prog/presscosmos.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nirajkate2023-prog/presscosmos/issues"
+  },
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "check": "node tools/check-links.mjs",
+    "verify": "node tools/build.mjs && node tools/check-links.mjs",
+    "preview": "node tools/preview.mjs",
+    "start": "node tools/preview.mjs",
+    "assets": "powershell -ExecutionPolicy Bypass -File tools/gen-assets.ps1",
+    "package:hostinger": "powershell -ExecutionPolicy Bypass -File tools/make-deploy.ps1"
+  }
+}

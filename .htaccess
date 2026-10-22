@@ -172,8 +172,11 @@ ErrorDocument 404 /404.html
   RewriteEngine On
   RewriteRule ^\.git(/|$) - [F,L]
   RewriteRule ^tools(/|$) - [F,L]
+  RewriteRule ^build(/|$) - [F,L]
+  RewriteRule ^node_modules(/|$) - [F,L]
   RewriteRule ^\.commandcode(/|$) - [F,L]
   RewriteRule ^(README|DEPLOY|LICENSE)\.md$ - [F,L]
+  RewriteRule ^package(-lock)?\.json$ - [F,L]
   RewriteRule ^\.gitignore$ - [F,L]
 </IfModule>
 

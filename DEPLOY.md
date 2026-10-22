@@ -23,8 +23,13 @@ Hostinger pulls the repository and redeploys on every push to `main`.
    - **Branch**: `main`
    - **Install path**: `public_html`
 3. Click **Create**. Hostinger clones the repo into `public_html`.
-4. Leave the **build command** empty — there is nothing to compile. (There is no
-   `package.json` in this project by design; no dependency install is required.)
+4. **Build command: leave it empty.** The site is already built and committed, so there is
+   nothing to compile. A `package.json` is present for convenience (`npm run build`,
+   `npm run verify`) but it declares **no dependencies**, so `npm install` is never required. If
+   your panel insists on a build command, `npm run build` works wherever Node is available and
+   just regenerates identical files.
+5. If the panel offers an install step, you can skip it. It is harmless either way — the
+   `.htaccess` blocks `node_modules/`, `package.json` and `/build/` from being served.
 
 The included `.htaccess` blocks web access to `/tools/`, `/README.md`, `/DEPLOY.md`, `/.git`
 and dotfiles, so pulling the whole repository is safe.

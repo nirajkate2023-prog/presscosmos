@@ -18,8 +18,9 @@ static site so it can be hosted anywhere and read by anything, including AI craw
 Press releases have two audiences now: people, and retrieval systems. This site is built to be
 read by both.
 
-- **No framework, no build dependencies, no `package.json`.** Plain HTML, one CSS file, one JS
-  file. Pages load fast and there is no dependency tree to go stale or vulnerable.
+- **No framework and zero dependencies.** Plain HTML, one CSS file, one JS file. `package.json`
+  exists only to expose the build scripts — it declares **no dependencies**, so nothing is ever
+  installed and there is no dependency tree to go stale or vulnerable.
 - **Everything is committed.** Generated HTML, CSS, JS and images all live in the repository,
   so any static host serves the site directly with no CI step and no build command.
 - **Animations are progressive.** Scroll reveals, kinetic headlines, orbit visuals, marquee,
@@ -47,6 +48,7 @@ rss.xml, manifest.webmanifest    feeds and PWA metadata
 .htaccess                        Apache/LiteSpeed config for Hostinger:
                                  HTTPS + canonical host, security headers, CSP,
                                  compression, caching, MIME types, source protection
+package.json                     project manifest: npm scripts only, no dependencies
 tools/build.mjs                  site builder: renders pages + emits machine-readable files
 tools/site.mjs                   brand, navigation, plans, industries, FAQs (single source of truth)
 tools/ui.mjs                     component library (cards, heroes, FAQs, CTAs, icons)
@@ -61,15 +63,26 @@ DEPLOY.md                        Hostinger + GitHub Pages instructions, DNS, SSL
 ## Commands
 
 ```bash
-node tools/preview.mjs        # local preview at http://localhost:4321
-node tools/build.mjs          # regenerate all HTML + sitemap + robots + llms.txt + rss
-node tools/check-links.mjs    # verify every internal link resolves
+npm run build      # regenerate all HTML + sitemap + robots + llms.txt + rss
+npm run check      # verify every internal link resolves
+npm run verify     # build, then check
+npm run preview    # local preview at http://localhost:4321
+npm start          # same as preview
 ```
 
-On Windows, build the Hostinger deployment package with:
+The same commands work without npm, if you prefer:
+
+```bash
+node tools/build.mjs
+node tools/check-links.mjs
+node tools/preview.mjs
+```
+
+On Windows, build the deployment package with:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools/make-deploy.ps1   # -> presscosmos-hostinger.zip
+npm run package:hostinger    # -> presscosmos-hostinger.zip
+npm run assets               # regenerate the social card and icons
 ```
 
 ## Editing content
@@ -86,7 +99,7 @@ Everything editable lives in three places:
    colours, type scale, spacing, radii, shadows and easing curves. The responsive layer is
    section 20 at the bottom of the same file.
 
-After editing, run `node tools/build.mjs`.
+After editing, run `npm run verify`.
 
 ## Things to change before going live commercially
 
