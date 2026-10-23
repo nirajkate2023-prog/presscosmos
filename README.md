@@ -45,6 +45,8 @@ sitemap.xml, robots.txt          crawler layer
 llms.txt                         AI assistant guidance file (LLMO)
 rss.xml, manifest.webmanifest    feeds and PWA metadata
 404.html                         styled not-found page
+admin/                           gated admin area: .htaccess Basic Auth gate +
+                                 landing page (credentials never committed)
 .htaccess                        Apache/LiteSpeed config for Hostinger:
                                  HTTPS + canonical host, security headers, CSP,
                                  compression, caching, MIME types, source protection

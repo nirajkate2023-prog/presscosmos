@@ -40,6 +40,10 @@ foreach ($file in @('favicon.svg', 'favicon-32.png', 'apple-touch-icon.png')) {
   Copy-Item (Join-Path $root $file) -Destination $staging
 }
 
+# Admin area (gate + landing page). The credential file is never packaged.
+Copy-Item (Join-Path $root 'admin') -Destination $staging -Recurse
+Remove-Item (Join-Path $staging 'admin\.htpasswd') -Force -ErrorAction SilentlyContinue
+
 # Machine-readable layer.
 foreach ($file in @('robots.txt', 'sitemap.xml', 'llms.txt', 'rss.xml', 'manifest.webmanifest')) {
   Copy-Item (Join-Path $root $file) -Destination $staging

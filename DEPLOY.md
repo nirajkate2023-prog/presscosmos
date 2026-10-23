@@ -218,6 +218,45 @@ Then either let the Hostinger Git webhook pull the change, or re-run
 `tools/make-deploy.ps1` and re-upload the package. GitHub Pages picks up a push within about
 a minute.
 
+## Admin area (`/admin/`)
+
+The private admin area lives in `admin/` and is protected by HTTP Basic Authentication,
+enforced by the web server (not by JavaScript), so it cannot be bypassed from the browser.
+
+**It only works on Hostinger.** GitHub Pages ignores `.htaccess`, so the Pages copy of
+`/admin/` stays open — never put confidential material there.
+
+### One-time activation
+
+1. **Put the credentials file in place.** Generate the hash, then upload `.htpasswd` to
+   `public_html/admin/.htpasswd` with File Manager:
+
+   ```bash
+   hash=$(openssl passwd -apr1 'your-password')   # -> $apr1$...
+   printf 'pressadmin:%s\n' "$hash" > .htpasswd
+   ```
+
+   Or let hPanel do it: **Advanced → Password Protect Directories**, select the `admin`
+   folder. Hostinger writes both the gate and a correctly pathed `.htpasswd`.
+
+2. **Check the `AuthUserFile` path** in `admin/.htaccess`. It must be the absolute path to
+   the `.htpasswd` on the server, for example
+   `/home/uXXXXXXXX/domains/presscosmos.com/public_html/admin/.htpasswd`. hPanel → Files →
+   File Manager shows the real path at the top when you open `public_html`. A wrong path
+   makes `/admin/` return 500 — it fails closed, never open.
+
+3. **Visit** `https://presscosmos.com/admin/`. The browser prompts for the username and
+   password.
+
+`.htpasswd` is listed in `.gitignore` and is never committed, so the password hash stays off
+the public repository. Rotate the password any time by regenerating the hash and replacing
+the single line in `.htpasswd`; no redeploy is needed.
+
+`robots.txt` disallows `/admin/` so search and AI crawlers leave it alone, and the pages
+inside carry `noindex`.
+
+---
+
 ## Alternative hosts
 
 Because there is no server-side code, the same repository deploys unchanged to Cloudflare

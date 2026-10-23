@@ -1,0 +1,47 @@
+# ============================================================================
+# PressCosmos admin area - HTTP Basic Auth gate
+#
+# Everything under /admin/ requires a username and password before it is
+# served. This is enforced by the web server (Apache / LiteSpeed), not by
+# JavaScript, so it cannot be bypassed from the browser.
+#
+# NOTE: GitHub Pages ignores .htaccess, so this gate exists only on the
+# Hostinger deployment. The GitHub Pages copy stays open - do not put
+# anything confidential in this folder.
+#
+# -- One-time setup ----------------------------------------------------------
+# 1. Set AuthUserFile (below) to the ABSOLUTE path of the .htpasswd file on
+#    the server. Hostinger home paths are usually one of:
+#        /home/uXXXXXXXX/domains/presscosmos.com/public_html/admin/.htpasswd
+#        /home/uXXXXXXXX/public_html/admin/.htpasswd
+#    The exact path is shown in hPanel -> Files -> File Manager when you open
+#    public_html. If the path is wrong Apache returns 500 for /admin/ - it
+#    fails closed, never open.
+#
+#    Easier alternative: hPanel -> Advanced -> Password Protect Directories.
+#    Select the admin folder and Hostinger writes this gate and a correctly
+#    pathed .htpasswd for you.
+#
+# 2. Place the .htpasswd file. It is deliberately NOT in this Git repository
+#    (see .gitignore) so the password hash is never published. Upload it with
+#    File Manager, or let hPanel create it in step 1.
+#
+# 3. Rotate the password at any time by regenerating the hash:
+#        openssl passwd -apr1 'your-new-password'
+#    and replacing the single line in .htpasswd. Reload /admin/ afterwards.
+# ============================================================================
+
+AuthType Basic
+AuthName "PressCosmos Admin"
+AuthUserFile /home/uXXXXXXXX/domains/presscosmos.com/public_html/admin/.htpasswd
+Require valid-user
+
+# Credentials must not be cached by the browser or any intermediary.
+<IfModule mod_headers.c>
+  Header always set Cache-Control "no-store, private"
+</IfModule>
+
+# The gate only ever needs GET and HEAD (this is a static area).
+<LimitExcept GET HEAD>
+  Require all denied
+</LimitExcept>

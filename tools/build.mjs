@@ -217,7 +217,7 @@ const buildHeader = (page) => `
         <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch colour theme" aria-pressed="false">
           ${icon('sun', 'i-sun')}${icon('moon', 'i-moon')}
         </button>
-        <a class="login-link btn btn-quiet btn-sm" href="contact.html">Sign in</a>
+        <a class="login-link btn btn-quiet btn-sm" href="admin/">Sign in</a>
         <a class="btn btn-sm" href="submit.html">Submit a release</a>
       </div>
     </nav>
@@ -319,6 +319,7 @@ const writeRobots = async () => {
 User-agent: *
 Allow: /
 Disallow: /404.html
+Disallow: /admin/
 
 ${aiBots.map((b) => `User-agent: ${b}\nAllow: /`).join('\n\n')}
 

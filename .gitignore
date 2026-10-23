@@ -13,3 +13,7 @@ desktop.ini
 # Deployment artefacts — regenerate with tools/make-deploy.ps1
 build/
 *.zip
+
+# Admin credentials — the password hash stays off this public repository.
+# Create the file on the server (see admin/.htaccess and DEPLOY.md).
+.htpasswd
