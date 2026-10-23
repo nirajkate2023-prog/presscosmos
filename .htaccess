@@ -85,7 +85,7 @@ ErrorDocument 404 /404.html
   #  - script-src needs 'unsafe-inline' for the one-line theme bootstrap in <head>
   #  - Google Fonts supplies the stylesheet and the font binaries
   #  - data: is needed for the inline SVG noise texture and the select caret
-  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self'"
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co"
 
   # Remove the server signature from responses
   Header unset X-Powered-By

@@ -218,42 +218,56 @@ Then either let the Hostinger Git webhook pull the change, or re-run
 `tools/make-deploy.ps1` and re-upload the package. GitHub Pages picks up a push within about
 a minute.
 
-## Admin area (`/admin/`)
+## Admin panel (`/admin/`)
 
-The private admin area lives in `admin/` and is protected by HTTP Basic Authentication,
-enforced by the web server (not by JavaScript), so it cannot be bypassed from the browser.
+The admin panel lives in `admin/` and is a real login backed by
+[Supabase](https://supabase.com) Auth. Supabase validates the credentials on its own servers,
+so the login is genuine on a static host — and it works identically on Hostinger **and** on
+GitHub Pages, because no `.htaccess` is involved. There is no build step and no dependency:
+the panel talks to Supabase's Auth and REST APIs with `fetch`.
 
-**It only works on Hostinger.** GitHub Pages ignores `.htaccess`, so the Pages copy of
-`/admin/` stays open — never put confidential material there.
+### One-time setup
 
-### One-time activation
+1. **Create a project** at [supabase.com](https://supabase.com) (the free tier is plenty).
+2. **Create the table.** Dashboard → **SQL Editor** → New query → paste the contents of
+   `supabase/schema.sql` → **Run**. This creates the `releases` table and its Row Level
+   Security policies.
+3. **Create your admin user.** Dashboard → **Authentication → Users → Add user**. Enter an
+   email and password and tick **Auto Confirm User** so you can sign in straight away.
+4. **Add the project keys.** Dashboard → **Project Settings → API**. Copy the **Project URL**
+   and the **anon public** key into `admin/config.js`:
 
-1. **Put the credentials file in place.** Generate the hash, then upload `.htpasswd` to
-   `public_html/admin/.htpasswd` with File Manager:
-
-   ```bash
-   hash=$(openssl passwd -apr1 'your-password')   # -> $apr1$...
-   printf 'pressadmin:%s\n' "$hash" > .htpasswd
+   ```js
+   window.PRESSCOSMOS_SUPABASE = {
+     url: 'https://YOUR-PROJECT.supabase.co',
+     anonKey: 'YOUR-ANON-PUBLIC-KEY',
+   };
    ```
 
-   Or let hPanel do it: **Advanced → Password Protect Directories**, select the `admin`
-   folder. Hostinger writes both the gate and a correctly pathed `.htpasswd`.
+   The anon key is a **public** key by design — it is meant to be shipped to browsers and is
+   safe to commit. Security comes from Row Level Security, not from hiding this key.
+5. **Commit and push** `admin/config.js`, then visit `https://presscosmos.com/admin/` and sign
+   in with the user from step 3. The header **Sign in** button points at `/admin/`.
 
-2. **Check the `AuthUserFile` path** in `admin/.htaccess`. It must be the absolute path to
-   the `.htpasswd` on the server, for example
-   `/home/uXXXXXXXX/domains/presscosmos.com/public_html/admin/.htpasswd`. hPanel → Files →
-   File Manager shows the real path at the top when you open `public_html`. A wrong path
-   makes `/admin/` return 500 — it fails closed, never open.
+### How it is secured
 
-3. **Visit** `https://presscosmos.com/admin/`. The browser prompts for the username and
-   password.
+- The password is checked by Supabase's servers; the browser only ever holds a short-lived
+  token, so there is no credential to read out of the page.
+- `supabase/schema.sql` enables Row Level Security: anonymous visitors may read published
+  releases only, while signed-in admins get full access. The public anon key cannot read
+  drafts or write anything.
+- The session is kept in `localStorage` and refreshed automatically; **Sign out** revokes it.
+- The `Content-Security-Policy` in `.htaccess` permits network calls only to `*.supabase.co`.
 
-`.htpasswd` is listed in `.gitignore` and is never committed, so the password hash stays off
-the public repository. Rotate the password any time by regenerating the hash and replacing
-the single line in `.htpasswd`; no redeploy is needed.
+### Managing access
 
-`robots.txt` disallows `/admin/` so search and AI crawlers leave it alone, and the pages
-inside carry `noindex`.
+Add or remove users in the Supabase dashboard (Authentication → Users). `robots.txt` disallows
+`/admin/` so search and AI crawlers stay away.
+
+> The admin panel manages a `releases` table in Supabase. The public newsroom pages are still
+> generated at build time from `tools/content/`; wiring the site to render from Supabase is a
+> separate, deliberate step (client-side rendering would work against the site's SEO/AEO
+> goals).
 
 ---
 

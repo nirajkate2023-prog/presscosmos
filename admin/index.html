@@ -10,110 +10,115 @@
 <meta name="format-detection" content="telephone=no">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
-<link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/css/main.css">
 <script>(function(){try{var t=localStorage.getItem('presscosmos:theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
+<style>
+  .admin-shell { max-width: 1100px; margin: 0 auto; padding: clamp(1.2rem, 4vw, 2.4rem); }
+  .admin-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
+  .admin-bar .brand { font-size: var(--step-1); }
+  .admin-user { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+  .login-card { max-width: 420px; margin: clamp(2rem, 8vw, 6rem) auto; }
+  .login-card form { display: grid; gap: .85rem; margin-top: 1.25rem; }
+  .login-card label { font-size: var(--step--1); color: var(--muted); }
+  .field { display: grid; gap: .35rem; }
+  .alert { border-radius: var(--r-sm); padding: .7rem .9rem; font-size: var(--step--1); border: 1px solid var(--border-strong); }
+  .alert-error { border-color: rgba(251,113,133,.5); background: rgba(251,113,133,.08); color: var(--coral); }
+  .alert-warn { border-color: rgba(251,191,36,.45); background: rgba(251,191,36,.08); color: var(--gold); }
+  .release-form { display: grid; gap: .6rem; margin-bottom: 1.6rem; }
+  .release-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+  .release-row h3 { font-size: var(--step-1); margin-bottom: .25rem; }
+  .release-meta { font-size: var(--step--1); color: var(--faint); }
+  .tag { display: inline-block; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; padding: .15rem .5rem; border-radius: var(--r-pill); border: 1px solid var(--border-strong); color: var(--muted); }
+  .tag-published { color: var(--lime); border-color: rgba(163,230,53,.4); }
+  #release-list { display: grid; gap: .9rem; }
+  [hidden] { display: none !important; }
+</style>
 </head>
 <body>
 
-<a class="skip-link" href="#main">Skip to content</a>
-<header class="site-header" data-header>
-  <div class="wrap">
-    <nav class="nav" aria-label="Primary">
-      <a class="brand" href="../index.html" aria-label="PressCosmos home">
-        <span>Press<span class="gradient-text">Cosmos</span></span>
-      </a>
-      <div class="nav-actions">
-        <span class="pill">Admin</span>
-        <a class="btn btn-quiet btn-sm" href="../index.html">View site</a>
-      </div>
-    </nav>
+<div class="admin-shell">
+  <div class="admin-bar">
+    <a class="brand" href="../index.html" aria-label="PressCosmos home"><span>Press<span class="gradient-text">Cosmos</span></span> <span class="pill">Admin</span></a>
+    <div class="admin-user">
+      <span class="mono" id="user-email" hidden></span>
+      <a class="btn btn-quiet btn-sm" href="../index.html">View site</a>
+      <button class="btn btn-sm" type="button" id="sign-out" hidden>Sign out</button>
+    </div>
   </div>
-</header>
 
-<main id="main">
-  <section class="section section-tight">
-    <div class="wrap">
-      <div class="section-head">
-        <p class="eyebrow">Restricted area</p>
-        <h1 class="display">PressCosmos admin</h1>
-        <p class="lede">You are signed in. This area is gated by HTTP Basic Authentication at the server, so only someone with the credentials can load it.</p>
-      </div>
+  <div class="alert alert-warn" id="setup-warning" hidden>
+    <strong>Supabase is not configured.</strong>
+    Open <span class="mono">admin/config.js</span> and set <span class="mono">url</span> and
+    <span class="mono">anonKey</span> from your Supabase project, then reload this page.
+  </div>
 
-      <div class="callout" style="margin-bottom:2rem">
-        <strong>Static gate, not a CMS.</strong>
-        PressCosmos is a static site. This page is a private landing area — it does not edit content or receive submissions. Content lives in the repository (<span class="mono">tools/site.mjs</span> and <span class="mono">tools/content/</span>) and is published by running the build and pushing to <span class="mono">main</span>.
-      </div>
-
-      <div class="grid g-3">
-        <a class="card spotlight" href="https://presscosmos.com/" target="_blank" rel="noopener">
-          <h3>Live site</h3>
-          <p>presscosmos.com — the production Hostinger deployment.</p>
-        </a>
-        <a class="card spotlight" href="../sitemap.html">
-          <h3>Sitemap</h3>
-          <p>Every page on the site, in one place.</p>
-        </a>
-        <a class="card spotlight" href="https://github.com/nirajkate2023-prog/presscosmos" target="_blank" rel="noopener">
-          <h3>Repository</h3>
-          <p>Source, content modules and build scripts on GitHub.</p>
-        </a>
-        <a class="card spotlight" href="https://github.com/nirajkate2023-prog/presscosmos/blob/main/DEPLOY.md" target="_blank" rel="noopener">
-          <h3>Deploy guide</h3>
-          <p>Hostinger setup, DNS, SSL and redeploy steps.</p>
-        </a>
-        <a class="card spotlight" href="../llms.txt">
-          <h3>AI guidance file</h3>
-          <p>The machine-readable summary served to AI assistants.</p>
-        </a>
-        <a class="card spotlight" href="https://nirajkate2023-prog.github.io/presscosmos/" target="_blank" rel="noopener">
-          <h3>Staging preview</h3>
-          <p>The GitHub Pages copy — remember it is not gated.</p>
-        </a>
-      </div>
+  <!-- Signed out -->
+  <section id="login-view" hidden>
+    <div class="card login-card">
+      <p class="eyebrow">Restricted area</p>
+      <h1 class="display">Sign in</h1>
+      <p class="lede">Admin access only. Accounts are managed in Supabase, not on this page.</p>
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <input class="input" id="email" name="email" type="email" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input class="input" id="password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="btn" type="submit" id="login-submit">Sign in</button>
+        <p class="alert alert-error" id="login-error" role="alert" hidden></p>
+      </form>
     </div>
   </section>
 
-  <section class="section">
-    <div class="wrap">
-      <div class="section-head">
-        <p class="eyebrow">Security</p>
-        <h2>How this area is protected</h2>
-      </div>
-      <div class="grid g-2">
-        <div class="card">
-          <h3>Server-enforced login</h3>
-          <p>The gate is configured in <span class="mono">admin/.htaccess</span> and checked by Apache/LiteSpeed before any file is sent. There is no password in the page itself, so it cannot be read from the browser.</p>
+  <!-- Signed in -->
+  <section id="app-view" hidden>
+    <div class="section-head" style="margin-bottom:1.5rem">
+      <p class="eyebrow">Dashboard</p>
+      <h1 class="display">Press releases</h1>
+      <p class="lede">Create and manage releases stored in Supabase. Every write is protected by Row Level Security.</p>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:var(--step-2);margin-bottom:.75rem">New release</h2>
+      <form class="release-form" id="release-form">
+        <div class="field">
+          <label for="r-title">Headline</label>
+          <input class="input" id="r-title" name="title" type="text" required>
         </div>
-        <div class="card">
-          <h3>Credentials off the repo</h3>
-          <p>The password hash lives in a <span class="mono">.htpasswd</span> file on the server only. It is listed in <span class="mono">.gitignore</span> and is never published to GitHub.</p>
+        <div class="field">
+          <label for="r-summary">Summary</label>
+          <input class="input" id="r-summary" name="summary" type="text">
         </div>
-        <div class="card">
-          <h3>Signing out</h3>
-          <p>Basic authentication has no sign-out button. Close the browser (or the private window) to end the session — some browsers keep the credentials cached until then.</p>
+        <div class="field">
+          <label for="r-body">Body</label>
+          <textarea class="input" id="r-body" name="body" rows="4"></textarea>
         </div>
-        <div class="card">
-          <h3>Rotating the password</h3>
-          <p>Run <span class="mono">openssl passwd -apr1 'new-password'</span> and replace the line in <span class="mono">.htpasswd</span>. No deploy is required.</p>
+        <div class="cluster">
+          <label class="mono" style="display:flex;align-items:center;gap:.45rem;color:var(--muted)">
+            <input type="checkbox" id="r-published"> Publish immediately
+          </label>
+          <button class="btn" type="submit" id="release-submit">Save release</button>
         </div>
-      </div>
-      <p class="mt-3"><a class="btn btn-ghost btn-sm" href="../index.html">Back to the public site</a></p>
+        <p class="alert alert-error" id="release-error" role="alert" hidden></p>
+      </form>
+    </div>
+
+    <div style="margin-top:2rem">
+      <h2 style="font-size:var(--step-2);margin-bottom:1rem">All releases</h2>
+      <p class="alert alert-error" id="list-error" role="alert" hidden></p>
+      <div id="release-list" aria-live="polite"></div>
     </div>
   </section>
-</main>
+</div>
 
-<footer class="site-footer">
-  <div class="wrap">
-    <div class="footer-bottom">
-      <p>© <span data-year>2026</span> PressCosmos Media Network. All rights reserved.</p>
-      <p class="mono">Private admin area — do not link to this page publicly.</p>
-    </div>
-  </div>
-</footer>
-
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
+<script src="admin.js"></script>
 </body>
 </html>
