@@ -229,33 +229,48 @@ the panel talks to Supabase's Auth and REST APIs with `fetch`.
 ### One-time setup
 
 1. **Create a project** at [supabase.com](https://supabase.com) (the free tier is plenty).
-2. **Create the table.** Dashboard → **SQL Editor** → New query → paste the contents of
-   `supabase/schema.sql` → **Run**. This creates the `releases` table and its Row Level
-   Security policies.
+2. **Create the tables and policies.** Dashboard → **SQL Editor** → New query → paste the
+   contents of `supabase/schema.sql` → **Run**. This creates `releases`, the `admins`
+   allowlist and the Row Level Security policies.
 3. **Create your admin user.** Dashboard → **Authentication → Users → Add user**. Enter an
    email and password and tick **Auto Confirm User** so you can sign in straight away.
-4. **Add the project keys.** Dashboard → **Project Settings → API**. Copy the **Project URL**
-   and the **anon public** key into `admin/config.js`:
+4. **Allowlist that user.** In the **SQL Editor**, run (with the same email):
+
+   ```sql
+   insert into public.admins (email) values ('you@example.com')
+   on conflict (email) do nothing;
+   ```
+
+   Policies are scoped to this allowlist, so a user who is not listed gets nothing — even a
+   valid signed-in session.
+5. **Turn off public sign-up.** Dashboard → **Authentication → Providers → Email**, and
+   disable **Allow new users to sign up**. This is a private panel; nobody should be able to
+   create an account through the public API.
+6. **Add the project keys.** Dashboard → **Project Settings → API**. Put the **Project URL**
+   and the **publishable** (or legacy **anon public**) key into `admin/config.js`:
 
    ```js
    window.PRESSCOSMOS_SUPABASE = {
      url: 'https://YOUR-PROJECT.supabase.co',
-     anonKey: 'YOUR-ANON-PUBLIC-KEY',
+     anonKey: 'YOUR-PUBLISHABLE-KEY',
    };
    ```
 
-   The anon key is a **public** key by design — it is meant to be shipped to browsers and is
-   safe to commit. Security comes from Row Level Security, not from hiding this key.
-5. **Commit and push** `admin/config.js`, then visit `https://presscosmos.com/admin/` and sign
+   The publishable key is a **public** key by design — it is meant to be shipped to browsers
+   and is safe to commit. Security comes from Row Level Security, not from hiding this key.
+   Never put the `service_role` / `sb_secret_` key here.
+7. **Commit and push** `admin/config.js`, then visit `https://presscosmos.com/admin/` and sign
    in with the user from step 3. The header **Sign in** button points at `/admin/`.
 
 ### How it is secured
 
 - The password is checked by Supabase's servers; the browser only ever holds a short-lived
   token, so there is no credential to read out of the page.
-- `supabase/schema.sql` enables Row Level Security: anonymous visitors may read published
-  releases only, while signed-in admins get full access. The public anon key cannot read
-  drafts or write anything.
+- Row Level Security does the authorisation. Anonymous visitors may read published releases
+  only; write access requires a signed-in user whose email is in the `admins` allowlist. The
+  public publishable key cannot read drafts, cannot write, and cannot see anything at all.
+- The allowlist is what stops a stranger who signs up from becoming an admin. Keep public
+  sign-up disabled as well, so no stray accounts are created.
 - The session is kept in `localStorage` and refreshed automatically; **Sign out** revokes it.
 - The `Content-Security-Policy` in `.htaccess` permits network calls only to `*.supabase.co`.
 
