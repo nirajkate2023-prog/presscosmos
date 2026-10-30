@@ -2,6 +2,8 @@
 // Every page is rendered from this data by tools/build.mjs, so navigation,
 // footer, SEO defaults and structured data stay consistent site-wide.
 
+import { loadSiteOverrides, deepMerge, replaceArray } from './overrides.mjs';
+
 export const site = {
   name: 'PressCosmos',
   legalName: 'PressCosmos Media Network',
@@ -526,7 +528,7 @@ export const legalPages = [
   { slug: 'accessibility', name: 'Accessibility Statement' },
 ];
 
-export const primaryNav = [
+const buildPrimaryNav = () => [
   {
     label: 'Services',
     href: 'services.html',
@@ -583,7 +585,7 @@ export const primaryNav = [
   },
 ];
 
-export const footerColumns = [
+const buildFooterColumns = () => [
   {
     title: 'Platform',
     links: [
@@ -635,3 +637,45 @@ export const footerColumns = [
     links: legalPages.map((p) => ({ label: p.name, href: `${p.slug}.html` })),
   },
 ];
+
+/* --------------------------------------------------------------------------
+   Content overrides
+
+   Anything edited in the admin panel is stored in admin/content/site.json and
+   layered over the defaults above. This runs after the base data is declared
+   but before the navigation and footer are derived, so renaming an industry or
+   adding a legal page also updates the menu and footer entries built from it.
+   -------------------------------------------------------------------------- */
+const overrides = loadSiteOverrides();
+
+const REPLACEABLE_ARRAYS = [
+  ['stats', stats],
+  ['networkChannels', networkChannels],
+  ['services', services],
+  ['industries', industries],
+  ['plans', plans],
+  ['audienceSegments', audienceSegments],
+  ['testimonials', testimonials],
+  ['legalPages', legalPages],
+];
+
+for (const [key, target] of REPLACEABLE_ARRAYS) {
+  if (Array.isArray(overrides[key])) replaceArray(target, overrides[key]);
+}
+
+if (overrides.faqs) {
+  for (const [group, items] of Object.entries(overrides.faqs)) {
+    if (!Array.isArray(items)) continue;
+    if (!Array.isArray(faqs[group])) faqs[group] = [];
+    replaceArray(faqs[group], items);
+  }
+}
+
+if (overrides.site) {
+  // buildDate is stamped at build time, so it is never taken from an override.
+  const { buildDate, ...editable } = overrides.site;
+  deepMerge(site, editable);
+}
+
+export const primaryNav = overrides.primaryNav || buildPrimaryNav();
+export const footerColumns = overrides.footerColumns || buildFooterColumns();

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title>PressCosmos Content Manager</title>
+  <link href="config.yml" type="text/yaml" rel="cms-config-url" />
+</head>
+<body>
+  <!--
+    Decap CMS. This page and its config are the entire content manager: there is
+    no server. It reads and writes JSON under admin/content/, which
+    tools/build.mjs turns into the static site.
+
+    Set up sign-in and the OAuth proxy first — see DECAP.md in the repository.
+  -->
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+</body>
+</html>

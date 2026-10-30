@@ -86,11 +86,21 @@ curl -s https://presscosmos.com/llms.txt
 | 6 | Compression for HTML, CSS, JS, JSON, XML, SVG, fonts |
 | 7 | Caching: HTML revalidates on every deploy, assets cached 7 days |
 | 8 | MIME types for `.webmanifest`, `.svg`, `.woff2`, feeds |
-| 9–10 | Blocks `/tools/`, `/.git`, `*.mjs`, `*.ps1`, `*.md` and dotfiles from the web |
+| 9–10 | Blocks `/tools/`, `/admin/`, `/.git`, `*.mjs`, `*.ps1`, `*.md` and dotfiles from the web |
 | 11 | UTF-8 for HTML, text and XML |
 
 Every block is wrapped in `<IfModule>`, so a module Hostinger does not load cannot cause a
 500 error.
+
+### The admin panel is never deployed
+
+`admin/` is a **local tool** that runs on your own computer (`npm run admin`) and publishes by
+committing and pushing. It has no server-side component, so never upload it and never point a
+browser at it on the live host.
+
+It is protected anyway: the root `.htaccess` blocks `/admin/`, `admin/.htaccess` denies every
+request to the directory, `tools/make-deploy.ps1` never copies it into the package, and the
+password hash (`admin/.auth.json`) is gitignored. See `ADMIN.md`.
 
 ### DNS
 

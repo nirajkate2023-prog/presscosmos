@@ -21,6 +21,8 @@ const TYPES = {
   '.jpg': 'image/jpeg',
   '.webp': 'image/webp',
   '.webmanifest': 'application/manifest+json',
+  '.yml': 'text/yaml; charset=utf-8',
+  '.yaml': 'text/yaml; charset=utf-8',
   '.ico': 'image/x-icon',
 };
 

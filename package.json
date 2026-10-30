@@ -34,6 +34,10 @@
     "verify": "node tools/build.mjs && node tools/check-links.mjs",
     "preview": "node tools/preview.mjs",
     "start": "node tools/preview.mjs",
+    "admin": "node admin/server.mjs",
+    "admin:passwd": "node admin/passwd.mjs",
+    "seed:cms": "node tools/seed-cms.mjs",
+    "cms:local": "npx decap-server",
     "assets": "powershell -ExecutionPolicy Bypass -File tools/gen-assets.ps1",
     "package:hostinger": "powershell -ExecutionPolicy Bypass -File tools/make-deploy.ps1"
   }

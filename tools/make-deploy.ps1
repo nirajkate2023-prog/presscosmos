@@ -48,6 +48,14 @@ foreach ($file in @('robots.txt', 'sitemap.xml', 'llms.txt', 'rss.xml', 'manifes
 # Server configuration.
 Copy-Item (Join-Path $root '.htaccess') -Destination $staging
 
+# Decap CMS entry point and config, served at /admin/. The local Node panel
+# (admin/server.mjs, lib/, public/, content/) is deliberately NOT copied.
+$stagingAdmin = Join-Path $staging 'admin'
+New-Item -ItemType Directory -Force -Path $stagingAdmin | Out-Null
+foreach ($file in @('index.html', 'config.yml', '.htaccess')) {
+  Copy-Item (Join-Path $root "admin\$file") -Destination $stagingAdmin
+}
+
 # Upload instructions, included in the package only (not in the repository).
 $instructions = @'
 PressCosmos - Hostinger deployment package
@@ -136,7 +144,7 @@ $files | Group-Object { $_.Extension.ToLower() } |
   Format-Table -AutoSize
 
 Write-Output 'Verify that .htaccess and index.html are in the package:'
-foreach ($required in @('.htaccess', 'index.html', '404.html', 'llms.txt', 'UPLOAD-INSTRUCTIONS.txt')) {
+foreach ($required in @('.htaccess', 'index.html', '404.html', 'llms.txt', 'admin\index.html', 'admin\config.yml', 'UPLOAD-INSTRUCTIONS.txt')) {
   $present = Test-Path (Join-Path $staging $required)
   Write-Output ("  {0,-24} {1}" -f $required, $(if ($present) { 'present' } else { 'MISSING' }))
 }

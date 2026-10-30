@@ -13,3 +13,8 @@ desktop.ini
 # Deployment artefacts — regenerate with tools/make-deploy.ps1
 build/
 *.zip
+
+# Admin credentials and sessions — created by the admin panel on first run.
+# Never commit these, and never deploy them.
+admin/.auth.json
+admin/.sessions.json

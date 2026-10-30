@@ -1,0 +1,26 @@
+# ============================================================================
+# PressCosmos admin directory
+#
+# Decap CMS is served from this directory on the live site, so /admin/index.html
+# and /admin/config.yml (and nothing else) must be reachable.
+#
+# The rest of this directory belongs to the local Node panel (server.mjs,
+# lib/, public/) or to the content files the CMS writes (content/). None of that
+# should ever be served from the web, so it is refused here.
+# ============================================================================
+
+DirectoryIndex index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Local Node panel: server, password tool, its libraries and its UI.
+  RewriteRule ^server\.mjs$ - [F,L]
+  RewriteRule ^passwd\.mjs$ - [F,L]
+  RewriteRule ^lib(/|$) - [F,L]
+  RewriteRule ^public(/|$) - [F,L]
+
+  # Content JSON and any dotfile (.auth.json, .sessions.json).
+  RewriteRule ^content(/|$) - [F,L]
+  RewriteRule ^\. - [F,L]
+</IfModule>

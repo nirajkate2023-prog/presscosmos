@@ -1,0 +1,359 @@
+# ============================================================================
+# PressCosmos — Decap CMS configuration
+#
+# Served with the site at /admin/. There is no CMS server: Decap reads and
+# writes JSON under admin/content/, commits it to GitHub, and the "Rebuild site
+# from CMS content" GitHub Action renders it to static HTML.
+#
+# BEFORE FIRST USE: sign-in uses the GitHub backend, which needs a small OAuth
+# proxy. Create the GitHub OAuth App and deploy the proxy, then set
+# backend.base_url below to the proxy URL. Full steps are in DECAP.md.
+#
+# Editing locally (no OAuth): run `npx decap-server` and `npm run preview`,
+# then open http://localhost:4321/admin/ — local_backend is only used on
+# localhost, so the live site always uses the GitHub backend.
+# ============================================================================
+
+backend:
+  name: github
+  repo: nirajkate2023-prog/presscosmos
+  branch: main
+  # Your OAuth proxy's origin. NOTE: this must be the address of YOUR deployed
+  # proxy (e.g. https://presscosmos-oauth.vercel.app). https://vercel.app is
+  # Vercel's marketing site, not a deployment, so sign-in will fail until this
+  # points at the real proxy.
+  base_url: https://vercel.app
+  # The proxy path that starts the GitHub OAuth flow.
+  auth_endpoint: callback
+  commit_messages:
+    create: 'cms: create {{collection}} "{{slug}}"'
+    update: 'cms: update {{collection}} "{{slug}}"'
+    delete: 'cms: delete {{collection}} "{{slug}}"'
+    uploadMedia: 'cms: upload "{{path}}"'
+    deleteMedia: 'cms: delete "{{path}}"'
+
+# Only honoured on localhost (where `npx decap-server` proxies to your working
+# copy). The deployed admin ignores it and uses the GitHub backend above.
+local_backend: true
+
+publish_mode: simple
+
+site_url: https://presscosmos.com
+display_url: https://presscosmos.com
+logo_url: https://presscosmos.com/favicon.svg
+
+media_folder: assets/img
+public_folder: /assets/img
+
+slug:
+  encoding: ascii
+  clean_accents: true
+  sanitize_replacement: '-'
+
+collections:
+  # -------------------------------------------------------------------------
+  # One JSON file per page under admin/content/pages/. A file whose slug is not
+  # one of the 62 built-in pages becomes a new page — that is how new blog
+  # posts and press releases are added.
+  # -------------------------------------------------------------------------
+  - name: pages
+    label: Pages & articles
+    label_singular: Page
+    description: >-
+      Edit the copy of any page, or add a new blog post or press release.
+      After saving, the site rebuilds automatically within a couple of minutes.
+    folder: admin/content/pages
+    create: true
+    extension: json
+    format: json
+    identifier_field: title
+    slug: '{{slug}}'
+    summary: '{{title}}'
+    sortable_fields: ['title', 'publishedISO']
+    view_filters:
+      - label: Site pages
+        field: type
+        pattern: website
+      - label: Blog articles
+        field: type
+        pattern: article
+      - label: Press releases
+        field: type
+        pattern: release
+    fields:
+      - label: 'Page title (browser tab and search result title)'
+        name: title
+        widget: string
+      - label: 'Meta description'
+        name: description
+        widget: text
+        required: false
+        hint: 'Shown in search results and social shares. Aim for 150–160 characters.'
+      - label: Keywords
+        name: keywords
+        widget: list
+        required: false
+        default: []
+        hint: 'Comma-separated search keywords.'
+      - label: 'Body (HTML)'
+        name: body
+        widget: code
+        default_language: html
+        output_code_only: true
+        hint: 'The page content. The header, footer, navigation and structured data are added automatically.'
+      - label: 'Page type'
+        name: type
+        widget: select
+        required: false
+        default: website
+        options: [website, article, release]
+        hint: 'Use "article" for blog posts and "release" for press releases.'
+      - label: Category
+        name: category
+        widget: string
+        required: false
+      - label: 'Published date (ISO 8601)'
+        name: publishedISO
+        widget: string
+        required: false
+        hint: 'e.g. 2026-10-30T09:00:00-07:00. Used for press-release feeds and structured data.'
+      - label: 'Last updated date (ISO 8601)'
+        name: modifiedISO
+        widget: string
+        required: false
+      - label: 'Sitemap priority (0–1)'
+        name: priority
+        widget: number
+        required: false
+        value_type: float
+        step: 0.1
+        min: 0
+        max: 1
+      - label: 'Sitemap change frequency'
+        name: changefreq
+        widget: select
+        required: false
+        options: [hourly, daily, weekly, monthly, yearly]
+      - label: 'Hide from search engines'
+        name: noindex
+        widget: boolean
+        required: false
+        default: false
+
+  # -------------------------------------------------------------------------
+  # Site-wide content: brand, contact details, navigation, footer, pricing,
+  # services, industries, testimonials and FAQs. Written to a single file that
+  # the builder layers over the generated defaults.
+  # -------------------------------------------------------------------------
+  - name: settings
+    label: Site settings
+    files:
+      - name: site
+        label: 'Brand, navigation, plans & shared content'
+        file: admin/content/site.json
+        fields:
+          - label: 'Brand & contact'
+            name: site
+            widget: object
+            collapsed: true
+            fields:
+              - { label: 'Site name', name: name, widget: string }
+              - { label: 'Legal entity name', name: legalName, widget: string }
+              - { label: Tagline, name: tagline, widget: text }
+              - { label: 'Domain (no protocol)', name: domain, widget: string }
+              - { label: 'Canonical base URL', name: baseUrl, widget: string }
+              - { label: 'Sales email', name: email, widget: string }
+              - { label: 'Editorial email', name: pressEmail, widget: string }
+              - { label: 'Support email', name: supportEmail, widget: string }
+              - { label: Phone, name: phone, widget: string }
+              - { label: 'Founded year', name: founded, widget: string }
+              - { label: 'Default social share image', name: defaultOgImage, widget: image }
+              - { label: Locale, name: locale, widget: string }
+              - { label: 'Language code', name: language, widget: string }
+              - label: Address
+                name: address
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: Street, name: street, widget: string }
+                  - { label: City, name: city, widget: string }
+                  - { label: 'Region / state', name: region, widget: string }
+                  - { label: 'Postal code', name: postalCode, widget: string }
+                  - { label: 'Country code', name: country, widget: string }
+              - label: Social links
+                name: social
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: 'X / Twitter URL', name: x, widget: string, required: false }
+                  - { label: 'LinkedIn URL', name: linkedin, widget: string, required: false }
+                  - { label: 'YouTube URL', name: youtube, widget: string, required: false }
+                  - { label: 'Instagram URL', name: instagram, widget: string, required: false }
+
+          - label: Statistics
+            name: stats
+            widget: list
+            required: false
+            label_singular: statistic
+            summary: '{{fields.value}}{{fields.suffix}} — {{fields.label}}'
+            fields:
+              - { label: Number, name: value, widget: number }
+              - { label: Suffix, name: suffix, widget: string, required: false }
+              - { label: Label, name: label, widget: string }
+
+          - label: 'Pricing plans'
+            name: plans
+            widget: list
+            required: false
+            label_singular: plan
+            summary: '{{fields.name}} — ${{fields.price}}'
+            fields:
+              - { label: 'Plan name', name: name, widget: string }
+              - { label: Slug, name: slug, widget: string }
+              - { label: Price, name: price, widget: number }
+              - { label: 'Price unit', name: unit, widget: string, required: false }
+              - { label: Tagline, name: tagline, widget: text }
+              - { label: 'Highlight as most popular', name: popular, widget: boolean, required: false, default: false }
+              - { label: Features, name: features, widget: list, required: false, default: [] }
+
+          - label: Services
+            name: services
+            widget: list
+            required: false
+            label_singular: service
+            summary: '{{fields.name}}'
+            fields:
+              - { label: Name, name: name, widget: string }
+              - { label: 'Short name', name: short, widget: string }
+              - { label: Slug, name: slug, widget: string }
+              - { label: 'Page file', name: href, widget: string, hint: 'e.g. distribution.html' }
+              - label: Icon
+                name: icon
+                widget: select
+                options: [send, sparkle, radar, chart, building, search, shield, trend, globe, clock, users, lock, bolt, layers, mail, phone, pin, file, download, play, star, filter, quote, calendar, tag, external, check, arrow, x, sun, moon, cpu, mic, camera]
+              - { label: Summary, name: summary, widget: text }
+              - { label: Bullets, name: bullets, widget: list, required: false, default: [] }
+
+          - label: Industries
+            name: industries
+            widget: list
+            required: false
+            label_singular: industry
+            summary: '{{fields.name}}'
+            fields:
+              - { label: Name, name: name, widget: string }
+              - { label: Slug, name: slug, widget: string }
+              - { label: 'Page headline', name: h1, widget: string }
+              - { label: 'What it covers', name: intent, widget: string }
+              - { label: 'Highlighted statistic', name: stat, widget: string }
+              - { label: Keywords, name: keywords, widget: list, required: false, default: [] }
+
+          - label: Testimonials
+            name: testimonials
+            widget: list
+            required: false
+            label_singular: testimonial
+            summary: '{{fields.name}} — {{fields.company}}'
+            fields:
+              - { label: Person, name: name, widget: string }
+              - { label: Role, name: role, widget: string }
+              - { label: Company, name: company, widget: string }
+              - { label: Quote, name: quote, widget: text }
+
+          - label: FAQs
+            name: faqs
+            widget: object
+            collapsed: true
+            fields:
+              - label: 'General questions'
+                name: general
+                widget: list
+                required: false
+                summary: '{{fields.q}}'
+                fields:
+                  - { label: Question, name: q, widget: string }
+                  - { label: Answer, name: a, widget: text }
+              - label: 'Pricing questions'
+                name: pricing
+                widget: list
+                required: false
+                summary: '{{fields.q}}'
+                fields:
+                  - { label: Question, name: q, widget: string }
+                  - { label: Answer, name: a, widget: text }
+              - label: 'AI visibility questions'
+                name: ai
+                widget: list
+                required: false
+                summary: '{{fields.q}}'
+                fields:
+                  - { label: Question, name: q, widget: string }
+                  - { label: Answer, name: a, widget: text }
+              - label: 'Distribution questions'
+                name: distribution
+                widget: list
+                required: false
+                summary: '{{fields.q}}'
+                fields:
+                  - { label: Question, name: q, widget: string }
+                  - { label: Answer, name: a, widget: text }
+
+          - label: 'Menu (top navigation)'
+            name: primaryNav
+            widget: list
+            required: false
+            label_singular: 'menu item'
+            summary: '{{fields.label}}'
+            fields:
+              - { label: Label, name: label, widget: string }
+              - { label: 'Page file', name: href, widget: string }
+              - label: 'Dropdown links'
+                name: children
+                widget: list
+                required: false
+                fields:
+                  - { label: Label, name: label, widget: string }
+                  - { label: 'Page file', name: href, widget: string }
+
+          - label: 'Footer columns'
+            name: footerColumns
+            widget: list
+            required: false
+            label_singular: 'footer column'
+            summary: '{{fields.title}}'
+            fields:
+              - { label: 'Column heading', name: title, widget: string }
+              - label: Links
+                name: links
+                widget: list
+                fields:
+                  - { label: Label, name: label, widget: string }
+                  - { label: 'Page file', name: href, widget: string }
+
+          - label: 'Legal page list'
+            name: legalPages
+            widget: list
+            required: false
+            label_singular: 'legal page'
+            hint: 'Titles here feed the footer legal column. Page bodies are edited under Pages & articles.'
+            fields:
+              - { label: Name, name: name, widget: string }
+              - { label: Slug, name: slug, widget: string }
+
+          - label: 'Audience segments'
+            name: audienceSegments
+            widget: list
+            required: false
+            label_singular: segment
+            summary: '{{fields.name}}'
+            fields:
+              - { label: Name, name: name, widget: string }
+              - { label: Slug, name: slug, widget: string }
+              - { label: 'Page file', name: href, widget: string }
+              - { label: Summary, name: summary, widget: text }
+
+          - label: 'Network channels'
+            name: networkChannels
+            widget: list
+            required: false
+            hint: 'Comma-separated. Feeds the running marquee and llms.txt.'

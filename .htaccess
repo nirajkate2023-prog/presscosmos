@@ -65,6 +65,12 @@ ErrorDocument 404 /404.html
 # ---------------------------------------------------------------------------
 # 5. Security headers
 # ---------------------------------------------------------------------------
+# Mark requests to the Decap CMS at /admin/ so the Content Security Policy
+# below can be scoped to it (the CMS needs a looser policy than the site).
+<IfModule mod_setenvif.c>
+  SetEnvIf Request_URI "^/admin/" PC_CMS_ADMIN
+</IfModule>
+
 <IfModule mod_headers.c>
   # Prevent MIME-type sniffing
   Header always set X-Content-Type-Options "nosniff"
@@ -81,11 +87,16 @@ ErrorDocument 404 /404.html
   # HSTS — only applies once HTTPS is live. Remove if you ever need to serve http.
   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
 
-  # Content Security Policy.
+  # Content Security Policy — two policies, never both at once.
+  #
   #  - script-src needs 'unsafe-inline' for the one-line theme bootstrap in <head>
   #  - Google Fonts supplies the stylesheet and the font binaries
   #  - data: is needed for the inline SVG noise texture and the select caret
-  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self'"
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'self'" env=!PC_CMS_ADMIN
+
+  # Decap CMS at /admin/ (see DECAP.md): a CDN script, eval for the editor, and
+  # the GitHub API for saving content.
+  Header always set Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://github.com; frame-src 'self' https://github.com; worker-src blob:; media-src blob:; form-action 'self' https://github.com" env=PC_CMS_ADMIN
 
   # Remove the server signature from responses
   Header unset X-Powered-By
@@ -159,6 +170,7 @@ ErrorDocument 404 /404.html
   AddType application/rss+xml .rss
   AddType image/svg+xml .svg
   AddType font/woff2 .woff2
+  AddType text/yaml .yml .yaml
 </IfModule>
 
 # ---------------------------------------------------------------------------
@@ -172,6 +184,8 @@ ErrorDocument 404 /404.html
   RewriteEngine On
   RewriteRule ^\.git(/|$) - [F,L]
   RewriteRule ^tools(/|$) - [F,L]
+  # /admin/ is NOT blocked here: it serves the Decap CMS. admin/.htaccess
+  # refuses its private parts (server.mjs, lib/, public/, content/, dotfiles).
   RewriteRule ^build(/|$) - [F,L]
   RewriteRule ^node_modules(/|$) - [F,L]
   RewriteRule ^\.commandcode(/|$) - [F,L]
@@ -180,12 +194,14 @@ ErrorDocument 404 /404.html
   RewriteRule ^\.gitignore$ - [F,L]
 </IfModule>
 
-<FilesMatch "\.(mjs|ps1|md|sql|yml|yaml|lock|bak|config)$">
+# Source, tooling and repository files are never served. .yml/.yaml are
+# deliberately excluded so the CMS config at /admin/config.yml is reachable.
+<FilesMatch "\.(mjs|ps1|md|sql|lock|bak|config)$">
   Require all denied
 </FilesMatch>
 
 # Apache 2.2 fallback for the rule above
-<FilesMatch "\.(mjs|ps1|md|sql|yml|yaml|lock|bak|config)$">
+<FilesMatch "\.(mjs|ps1|md|sql|lock|bak|config)$">
   <IfModule !mod_authz_core.c>
     Order allow,deny
     Deny from all

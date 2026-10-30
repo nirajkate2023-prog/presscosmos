@@ -53,12 +53,47 @@ tools/build.mjs                  site builder: renders pages + emits machine-rea
 tools/site.mjs                   brand, navigation, plans, industries, FAQs (single source of truth)
 tools/ui.mjs                     component library (cards, heroes, FAQs, CTAs, icons)
 tools/content/*.mjs              page content, grouped by section
+tools/overrides.mjs              content override layer: layers admin edits over the defaults
 tools/gen-assets.ps1             regenerates the PNG social card and icons
 tools/make-deploy.ps1            builds the Hostinger upload package (folder + zip)
 tools/check-links.mjs            verifies every internal link and asset resolves
 tools/preview.mjs                local static preview server
+admin/                           content managers (see below)
+admin/index.html, config.yml     Decap CMS — the online editor, served at /admin/
+admin/server.mjs, lib/, public/  local Node panel (never deployed — blocked by .htaccess)
+admin/content/*.json             your edits, layered over the defaults above
+tools/seed-cms.mjs               seeds admin/content/ from the current site content
+.github/workflows/rebuild-site.yml  rebuilds the HTML when the CMS commits content
+ADMIN.md                         local Node panel guide: setup, editing, publishing, security
+DECAP.md                         Decap CMS guide: OAuth setup, editing, publishing
 DEPLOY.md                        Hostinger + GitHub Pages instructions, DNS, SSL
 ```
+
+## Admin panel
+
+A local content editor for the whole site. No database, no CMS, no dependencies — it edits the
+content layer and drives the same build.
+
+```bash
+npm run admin        # http://localhost:4000/admin/
+npm run admin:passwd # reset the password
+```
+
+Edit brand details, navigation, pricing, FAQs, any page's copy, links and images, with a live
+preview; then press **Publish** to rebuild, run the link check and push. The first run asks you
+to create an admin account. See **`ADMIN.md`** for the full guide.
+
+## Content manager (Decap CMS)
+
+A browser-based editor, served with the site at **`/admin/`**, for editing content from anywhere
+— no local tooling required. You sign in with GitHub; saves are committed to the repository and
+a GitHub Action (`rebuild-site.yml`) rebuilds the static HTML automatically. Edit any page's
+copy, the navigation and footer links, brand and pricing settings, upload images, or add new
+blog posts and press releases.
+
+It needs a one-time OAuth proxy so GitHub sign-in can work — see **`DECAP.md`** for the setup,
+and `admin/config.yml` for the collections. Both panels edit the same `admin/content/` layer and
+can be used interchangeably.
 
 ## Commands
 
@@ -68,6 +103,9 @@ npm run check      # verify every internal link resolves
 npm run verify     # build, then check
 npm run preview    # local preview at http://localhost:4321
 npm start          # same as preview
+npm run admin      # local Node panel at http://localhost:4000/admin/
+npm run cms:local  # Decap CMS locally (npx decap-server) — see DECAP.md
+npm run seed:cms   # one-off: seed admin/content/ from the current content
 ```
 
 The same commands work without npm, if you prefer:
@@ -87,7 +125,11 @@ npm run assets               # regenerate the social card and icons
 
 ## Editing content
 
-Everything editable lives in three places:
+The easy route is the **admin panel** (`npm run admin`) — see `ADMIN.md`. It writes JSON into
+`admin/content/`, which the builder layers over the defaults below, so you never have to touch
+the generator source.
+
+Editing by hand, everything editable lives in three places:
 
 1. **`tools/site.mjs`** — brand details, contact info, navigation, footer, pricing plans,
    industries, testimonials and FAQ content.
@@ -98,6 +140,9 @@ Everything editable lives in three places:
 3. **`assets/css/main.css`** — design tokens at the top of the file control the entire look:
    colours, type scale, spacing, radii, shadows and easing curves. The responsive layer is
    section 20 at the bottom of the same file.
+
+Anything in `admin/content/*.json` wins over the equivalent default in `tools/`, so if a value
+will not change, check whether the admin panel has written an override for it.
 
 After editing, run `npm run verify`.
 

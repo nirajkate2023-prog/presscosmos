@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 import { site, primaryNav, footerColumns, legalPages, plans, services, industries, faqs } from './site.mjs';
 import { brandMark, icon, section, ctaBand } from './ui.mjs';
+import { loadPageOverrides } from './overrides.mjs';
 
 import { corePages } from './content/pages-core.mjs';
 import { industryPages } from './content/pages-industries.mjs';
@@ -19,7 +20,46 @@ import { companyPages } from './content/pages-company.mjs';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
-const pages = [...corePages, ...industryPages, ...newsPages, ...legalContentPages, ...companyPages];
+// Per-page edits live in admin/content/: one JSON file per page under
+// admin/content/pages/ (written by the Decap CMS "Pages & articles" collection)
+// plus the whole-map admin/content/pages.json (written by the built-in Node
+// panel). A file whose slug has no generated default is a brand-new page — this
+// is how new blog posts and release pages are authored in the CMS.
+const defaultPages = [...corePages, ...industryPages, ...newsPages, ...legalContentPages, ...companyPages];
+const defaultSlugs = new Set(defaultPages.map((page) => page.slug));
+
+const pageOverrides = loadPageOverrides();
+
+const pages = defaultPages.map((page) => (pageOverrides[page.slug] ? { ...page, ...pageOverrides[page.slug] } : page));
+
+// A page authored entirely in the CMS has no generated default, so fill in the
+// fields the renderer relies on with sensible values.
+function normalizeExtraPage(slug, override = {}) {
+  const type = override.type === 'article' || override.type === 'release' ? override.type : 'website';
+  return {
+    slug,
+    type,
+    category: override.category,
+    publishedISO: override.publishedISO,
+    modifiedISO: override.modifiedISO || override.publishedISO,
+    priority: typeof override.priority === 'number' ? override.priority : 0.6,
+    changefreq: override.changefreq || 'monthly',
+    noindex: Boolean(override.noindex),
+    title: override.title || slug,
+    description: override.description || '',
+    keywords: Array.isArray(override.keywords) ? override.keywords : [],
+    body: override.body || '',
+    breadcrumbs: Array.isArray(override.breadcrumbs) ? override.breadcrumbs : [],
+    faqs: Array.isArray(override.faqs) ? override.faqs : [],
+    schema: Array.isArray(override.schema) ? override.schema : [],
+  };
+}
+
+const extraPages = Object.entries(pageOverrides)
+  .filter(([slug]) => !defaultSlugs.has(slug))
+  .map(([slug, override]) => normalizeExtraPage(slug, override));
+
+pages.push(...extraPages);
 
 /* --------------------------------------------------------------------------
    Helpers
@@ -380,7 +420,7 @@ When citing ${site.name}, link to the canonical page URL. Statistics and claims 
 };
 
 const writeRss = async () => {
-  const items = newsPages
+  const items = pages
     .filter((p) => p.type === 'release')
     .slice(0, 40)
     .map((p) => `    <item>
@@ -462,8 +502,29 @@ ${section({
 /* --------------------------------------------------------------------------
    Run
    -------------------------------------------------------------------------- */
+const injectExtraListings = () => {
+  const card = (page) => `<article class="card spotlight" data-reveal>
+      <h3 style="font-size:var(--step-0)"><a href="${page.slug}.html">${esc(page.title.split('|')[0].trim())}</a></h3>
+      <p style="font-size:var(--step--1)">${esc(page.description)}</p>
+    </article>`;
+
+  const append = (slug, heading, items) => {
+    if (!items.length) return;
+    const page = pages.find((p) => p.slug === slug);
+    if (!page) return;
+    page.body += `
+${section({ eyebrow: 'Latest', title: heading, body: `<div class="card-grid">${items.map(card).join('')}</div>` })}`;
+  };
+
+  // Surface CMS-authored content on the two listing hubs, so new posts are
+  // discoverable rather than only reachable by their direct URL.
+  append('blog', 'New insights & guides', extraPages.filter((page) => page.type === 'article'));
+  append('newsroom', 'New releases', extraPages.filter((page) => page.type === 'release'));
+};
+
 const main = async () => {
   await mkdir(join(ROOT, 'assets', 'img'), { recursive: true });
+  injectExtraListings();
 
   for (const page of pages) {
     if (!page.slug) throw new Error('Page missing slug');
@@ -477,6 +538,6 @@ const main = async () => {
   console.log(`  pages      : ${pages.length}`);
   console.log(`  generated  : ${pages.length + extra.length} files`);
   console.log(`  sitemap    : ${pages.filter((p) => !p.noindex).length} indexable URLs`);
-  console.log(`  releases   : ${newsPages.filter((p) => p.type === 'release').length}`);
+  console.log(`  releases   : ${pages.filter((p) => p.type === 'release').length}`);
 };
 main().catch((err) => { console.error(err); process.exit(1); });
