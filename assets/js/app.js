@@ -313,7 +313,7 @@
      ------------------------------------------------------------------ */
   const filterRoot = $('[data-filter-root]');
   if (filterRoot) {
-    const items = $$('[data-filter-item]', filterRoot);
+    const collect = () => $$('[data-filter-item]', filterRoot);
     const search = $('[data-filter-search]', filterRoot);
     const chips = $$('[data-filter-chip]', filterRoot);
     const empty = $('[data-filter-empty]', filterRoot);
@@ -323,7 +323,7 @@
     const apply = () => {
       const q = (search?.value || '').trim().toLowerCase();
       let visible = 0;
-      items.forEach((item) => {
+      collect().forEach((item) => {
         const tags = (item.dataset.tags || '').toLowerCase();
         const text = item.textContent.toLowerCase();
         const tagOk = activeTag === 'all' || tags.includes(activeTag);
@@ -344,7 +344,62 @@
       });
     });
     if (search) search.addEventListener('input', apply);
+    document.addEventListener('presscosmos:refresh', apply);
     apply();
+  }
+
+  /* ------------------------------------------------------------------
+     Live releases — published releases read from Supabase (newsroom)
+     ------------------------------------------------------------------
+     The Supabase project holds releases created in the /admin/ panel. The
+     publishable (anon) key only ever returns rows whose status is
+     'published' (enforced by Row Level Security), so it is safe to ship.
+     If the feed is unreachable the static newsroom is left untouched.
+     ------------------------------------------------------------------ */
+  const liveRoot = $('[data-live-releases]');
+  if (liveRoot) {
+    const base = (liveRoot.dataset.supabaseUrl || '').replace(/\/+$/, '');
+    const key = liveRoot.dataset.supabaseKey || '';
+    const clean = (v) => String(v == null ? '' : v)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+    const liveRow = (r) => {
+      const when = r.created_at ? new Date(r.created_at) : null;
+      const label = when
+        ? when.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+        : '';
+      const body = (r.body || '').trim();
+      const bodyHtml = body
+        ? `<details style="margin-top:.5rem"><summary class="link-arrow" style="cursor:pointer">Read full release</summary><div class="prose" style="margin-top:.6rem">${body.split(/\n{2,}/).map((p) => `<p>${clean(p).replace(/\n/g, '<br>')}</p>`).join('')}</div></details>`
+        : '';
+      return `<article class="release-row" data-filter-item data-tags="press release">
+        <div>
+          <p class="where">Press release</p>
+          <p class="mono faint" style="margin-top:.35rem">${when ? `<time datetime="${when.toISOString()}">${label}</time>` : ''}</p>
+        </div>
+        <div>
+          <h3>${clean(r.title)}</h3>
+          ${r.summary ? `<p class="muted" style="margin-top:.4rem;font-size:var(--step--1)">${clean(r.summary)}</p>` : ''}
+          ${bodyHtml}
+        </div>
+        <div></div>
+      </article>`;
+    };
+
+    if (base && key) {
+      fetch(`${base}/rest/v1/releases?select=title,summary,body,created_at&status=eq.published&order=created_at.desc&limit=50`, {
+        headers: { apikey: key, Authorization: `Bearer ${key}` },
+      })
+        .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
+        .then((rows) => {
+          if (!Array.isArray(rows) || rows.length === 0) return;
+          liveRoot.innerHTML = rows.map(liveRow).join('');
+          liveRoot.hidden = false;
+          document.dispatchEvent(new CustomEvent('presscosmos:refresh'));
+        })
+        .catch(() => { /* feed unreachable — keep the static newsroom */ });
+    }
   }
 
   /* ------------------------------------------------------------------

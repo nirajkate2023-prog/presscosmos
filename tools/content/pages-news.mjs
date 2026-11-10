@@ -722,6 +722,7 @@ ${section({
       ${['all', 'Technology', 'Finance', 'Healthcare', 'Real Estate', 'Business', 'Product']
         .map((c, i) => `<button class="tag${i === 0 ? ' is-active' : ''}" type="button" data-filter-chip="${c}" style="cursor:pointer">${c === 'all' ? 'All industries' : c}</button>`).join('')}
     </div>
+    <div class="stack" style="--flow:0" data-live-releases data-supabase-url="${site.supabase.url}" data-supabase-key="${site.supabase.anonKey}" hidden></div>
     <div class="stack" style="--flow:0">
       ${releases.map((r, i) => releaseRow({
           href: `${r.slug}.html`,

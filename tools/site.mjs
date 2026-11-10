@@ -32,6 +32,13 @@ export const site = {
   locale: 'en_US',
   language: 'en',
   buildDate: new Date().toISOString().slice(0, 10),
+  // Public Supabase project used by the /admin/ panel and the newsroom feed.
+  // The publishable (anon) key is safe to ship: Row Level Security exposes
+  // published releases to anonymous readers and nothing else.
+  supabase: {
+    url: 'https://fgaihrlkaarpgafhhpyg.supabase.co',
+    anonKey: 'sb_publishable_cG68eAtA8m7rwoPf3qah3Q_XxBS20D4',
+  },
 };
 
 export const stats = [
