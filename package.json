@@ -35,6 +35,7 @@
     "preview": "node tools/preview.mjs",
     "start": "node tools/preview.mjs",
     "assets": "powershell -ExecutionPolicy Bypass -File tools/gen-assets.ps1",
+    "seed:cms": "node tools/seed-cms.mjs",
     "package:hostinger": "powershell -ExecutionPolicy Bypass -File tools/make-deploy.ps1"
   }
 }

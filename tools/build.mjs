@@ -7,7 +7,7 @@ import { writeFile, mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { site, primaryNav, footerColumns, legalPages, plans, services, industries, faqs } from './site.mjs';
+import * as siteData from './site.mjs';
 import { brandMark, icon, section, ctaBand } from './ui.mjs';
 
 import { corePages } from './content/pages-core.mjs';
@@ -16,10 +16,49 @@ import { newsPages } from './content/pages-news.mjs';
 import { legalContentPages } from './content/pages-legal.mjs';
 import { companyPages } from './content/pages-company.mjs';
 
+import { loadRemote } from './content-source.mjs';
+import { applyGlobals, applyPageOverrides } from './overrides.mjs';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 
-const pages = [...corePages, ...industryPages, ...newsPages, ...legalContentPages, ...companyPages];
+/* --------------------------------------------------------------------------
+   Content source
+   With SUPABASE_URL + SUPABASE_SERVICE_KEY set (the CI rebuild), the content
+   the dashboard manages is fetched from Supabase and merged over the defaults
+   below. Without them, a plain clone builds from the defaults, byte-identical.
+   -------------------------------------------------------------------------- */
+const remote = await loadRemote();
+
+const defaults = {
+  site: siteData.site,
+  stats: siteData.stats,
+  networkChannels: siteData.networkChannels,
+  services: siteData.services,
+  industries: siteData.industries,
+  plans: siteData.plans,
+  audienceSegments: siteData.audienceSegments,
+  testimonials: siteData.testimonials,
+  faqs: siteData.faqs,
+  legalPages: siteData.legalPages,
+  primaryNav: siteData.primaryNav,
+  footerColumns: siteData.footerColumns,
+};
+
+const merged = applyGlobals(defaults, remote);
+const {
+  site, stats, networkChannels, services, industries, plans,
+  audienceSegments, testimonials, faqs, legalPages, primaryNav, footerColumns,
+} = merged;
+
+// Deterministic build date: the newest CMS change. An unchanged content set then
+// produces byte-identical output, so the CI rebuild makes no empty commits.
+if (remote && remote.updatedAt) site.buildDate = String(remote.updatedAt).slice(0, 10);
+
+const pages = applyPageOverrides(
+  [...corePages, ...industryPages, ...newsPages, ...legalContentPages, ...companyPages],
+  remote,
+);
 
 /* --------------------------------------------------------------------------
    Helpers
@@ -381,7 +420,7 @@ When citing ${site.name}, link to the canonical page URL. Statistics and claims 
 };
 
 const writeRss = async () => {
-  const items = newsPages
+  const items = pages
     .filter((p) => p.type === 'release')
     .slice(0, 40)
     .map((p) => `    <item>
@@ -400,7 +439,7 @@ const writeRss = async () => {
     <link>${site.baseUrl}/newsroom.html</link>
     <description>Press releases distributed by ${site.legalName}.</description>
     <language>${site.language}-us</language>
-    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <lastBuildDate>${new Date(`${site.buildDate}T00:00:00Z`).toUTCString()}</lastBuildDate>
     <atom:link href="${site.baseUrl}/rss.xml" rel="self" type="application/rss+xml"/>
 ${items}
   </channel>
@@ -478,6 +517,6 @@ const main = async () => {
   console.log(`  pages      : ${pages.length}`);
   console.log(`  generated  : ${pages.length + extra.length} files`);
   console.log(`  sitemap    : ${pages.filter((p) => !p.noindex).length} indexable URLs`);
-  console.log(`  releases   : ${newsPages.filter((p) => p.type === 'release').length}`);
+  console.log(`  releases   : ${pages.filter((p) => p.type === 'release').length}`);
 };
 main().catch((err) => { console.error(err); process.exit(1); });

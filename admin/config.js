@@ -7,4 +7,5 @@
 window.PRESSCOSMOS_SUPABASE = {
   url: 'https://fgaihrlkaarpgafhhpyg.supabase.co',
   anonKey: 'sb_publishable_cG68eAtA8m7rwoPf3qah3Q_XxBS20D4',
+  bucket: 'media',
 };

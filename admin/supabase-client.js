@@ -1,9 +1,9 @@
-// PressCosmos admin — minimal Supabase client (Auth + PostgREST).
+// PressCosmos admin — minimal Supabase client (Auth + PostgREST + Storage).
 //
-// Supabase Auth and data are plain HTTPS APIs, so this talks to them with
-// fetch() and no third-party library. Nothing is installed and nothing is
+// Supabase Auth, data and Storage are plain HTTPS APIs, so this talks to them
+// with fetch() and no third-party library. Nothing is installed and nothing is
 // loaded from a CDN, which keeps the site dependency-free and the Content
-// Security Policy tight (only connect-src needs to allow *.supabase.co).
+// Security Policy tight (only connect-src / img-src need to allow *.supabase.co).
 //
 // Exposes window.pcSupabase.
 (function () {
@@ -13,6 +13,7 @@
   var SESSION_KEY = 'presscosmos:admin-session';
   var base = String(cfg.url || '').replace(/\/+$/, '');
   var anonKey = String(cfg.anonKey || '');
+  var bucket = String(cfg.bucket || 'media');
 
   function withHeaders(extra) {
     var h = { apikey: anonKey, 'Content-Type': 'application/json' };
@@ -44,6 +45,7 @@
 
   var client = {
     configured: Boolean(base && anonKey),
+    bucket: bucket,
     session: null,
 
     // Load any stored session (survives a page reload).
@@ -113,6 +115,37 @@
       var extra = { Authorization: 'Bearer ' + this.session.access_token };
       if (options.headers) { for (var k in options.headers) { if (Object.prototype.hasOwnProperty.call(options.headers, k)) extra[k] = options.headers[k]; } }
       return call('/rest/v1' + path, Object.assign({}, options, { headers: withHeaders(extra) }));
+    },
+
+    // ------------------------------------------------------------ storage
+    publicUrl: function (path) {
+      return base + '/storage/v1/object/public/' + bucket + '/' + path;
+    },
+
+    upload: async function (path, file) {
+      if (!(await this.ensureFresh())) throw new Error('Your session has expired. Please sign in again.');
+      var res = await fetch(base + '/storage/v1/object/' + bucket + '/' + path, {
+        method: 'POST',
+        headers: {
+          apikey: anonKey,
+          Authorization: 'Bearer ' + this.session.access_token,
+          'Content-Type': file.type || 'application/octet-stream',
+          'x-upsert': 'true',
+        },
+        body: file,
+      });
+      var body = parse(await res.text());
+      if (!res.ok) throw new Error((body && (body.message || body.error)) || ('Upload failed (HTTP ' + res.status + ')'));
+      return this.publicUrl(path);
+    },
+
+    remove: async function (paths) {
+      if (!(await this.ensureFresh())) throw new Error('Your session has expired. Please sign in again.');
+      return call('/storage/v1/object/' + bucket, {
+        method: 'DELETE',
+        headers: withHeaders({ Authorization: 'Bearer ' + this.session.access_token }),
+        body: JSON.stringify({ prefixes: paths }),
+      });
     },
   };
 

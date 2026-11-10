@@ -1,0 +1,52 @@
+name: Rebuild site from CMS content
+
+# PressCosmos content lives in Supabase. The dashboard writes it there, then the
+# Supabase database webhook fires a repository_dispatch to this workflow, which
+# regenerates the static HTML and pushes it — making Hostinger redeploy. The
+# 15-minute schedule is a safety net in case a dispatch is missed.
+on:
+  repository_dispatch:
+    types: [content-published]
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rebuild-site
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build the site from Supabase content
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: node tools/build.mjs
+
+      - name: Check internal links
+        run: node tools/check-links.mjs
+
+      - name: Commit regenerated files
+        run: |
+          git config user.name "presscosmos-bot"
+          git config user.email "presscosmos-bot@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing changed — the site is already up to date."
+          else
+            git commit -m "Rebuild site from content [skip ci]"
+            git push
+          fi
