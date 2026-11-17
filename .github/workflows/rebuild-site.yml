@@ -48,5 +48,6 @@ jobs:
             echo "Nothing changed — the site is already up to date."
           else
             git commit -m "Rebuild site from content [skip ci]"
+            git pull origin main --rebase
             git push
           fi
